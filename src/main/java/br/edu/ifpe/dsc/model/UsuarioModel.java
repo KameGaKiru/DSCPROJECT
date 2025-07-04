@@ -2,7 +2,6 @@ package br.edu.ifpe.dsc.model;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,30 +11,33 @@ import br.edu.ifpe.dsc.model.repositorios.UsuarioRepositorio;
 
 @Component
 public class UsuarioModel {
-    
+
     @Autowired
     private UsuarioRepositorio usuarioRepositorio;
 
     public Usuario salvarUsuario(Usuario usuario) {
         return usuarioRepositorio.save(usuario);
     }
+
     public List<Usuario> listarUsuarios() {
         return usuarioRepositorio.findAll();
     }
 
-    public Optional<Usuario> buscarPorId(UUID id) {
-        return usuarioRepositorio.findById(id);
+    public Optional<Usuario> buscarPorMatricula(String matricula) {
+        return usuarioRepositorio.findByMatricula(matricula);
     }
 
-    public void deletarUsuario(UUID id) {
-        usuarioRepositorio.deleteById(id);
-    }
+    public void deletarUsuario(Usuario usuario) {
+    usuarioRepositorio.delete(usuario);
+}  
 
-    public Usuario atualizarUsuario(UUID id, Usuario dados) {
-        return usuarioRepositorio.findById(id)
+    public Usuario atualizarUsuario(String matricula, Usuario dados) {
+        return usuarioRepositorio.findByMatricula(matricula)
             .map(usuario -> {
                 usuario.setNome(dados.getNome());
                 usuario.setSobrenome(dados.getSobrenome());
+                usuario.setEmail(dados.getEmail());
+                usuario.setFuncao(dados.getFuncao());
                 return usuarioRepositorio.save(usuario);
             }).orElse(null);
     }

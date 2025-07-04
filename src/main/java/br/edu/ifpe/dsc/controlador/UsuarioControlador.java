@@ -2,7 +2,6 @@ package br.edu.ifpe.dsc.controlador;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,43 +24,53 @@ public class UsuarioControlador {
     @Autowired
     private UsuarioModel usuarioModel;
 
-   // POST - Cadastrar usuário
     @PostMapping("/cadastrar")
-    public Usuario saveUsuario(@RequestBody Usuario usuario) {
-        return usuarioModel.salvarUsuario(usuario);
+    public ResponseEntity<?> cadastrar(@RequestBody Usuario usuario) {
+        try {
+            Usuario salvo = usuarioModel.salvarUsuario(usuario);
+            return ResponseEntity.ok(salvo);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    // GET - Listar todos
+    //GET - LSITAR
     @GetMapping("/listar")
     public List<Usuario> listar() {
         return usuarioModel.listarUsuarios();
     }
 
-    // GET - Buscar por ID
-    @GetMapping("/buscar/{id}")
-    public ResponseEntity<Usuario> buscarPorId(@PathVariable UUID id) {
-        Optional<Usuario> usuario = usuarioModel.buscarPorId(id);
+    //GET - BUSCAR COM MATRICULA
+    @GetMapping("/buscar/{matricula}")
+    public ResponseEntity<Usuario> buscarPorMatricula(@PathVariable String matricula) {
+        Optional<Usuario> usuario = usuarioModel.buscarPorMatricula(matricula);
         return usuario.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    // PUT - Atualizar
-    @PutMapping("/atualizar/{id}")
-    public ResponseEntity<Usuario> atualizar(@PathVariable UUID id, @RequestBody Usuario dados) {
-        Usuario atualizado = usuarioModel.atualizarUsuario(id, dados);
-        if (atualizado == null) {
-            return ResponseEntity.notFound().build();
+    //PUT - ATUALIZAR COM MATRICULA
+    @PutMapping("/atualizar/{matricula}")
+    public ResponseEntity<Usuario> atualizar(@PathVariable String matricula, @RequestBody Usuario dados) {
+        try {
+            Usuario atualizado = usuarioModel.atualizarUsuario(matricula, dados);
+            if (atualizado == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(atualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
         }
-        return ResponseEntity.ok(atualizado);
     }
 
-    // DELETE - Remover
-    @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
-        Optional<Usuario> usuario = usuarioModel.buscarPorId(id);
-        if (usuario.isPresent()) {
-            usuarioModel.deletarUsuario(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+    //DELETE - DELETAR COM MATRICULA
+    @DeleteMapping("/deletar/{matricula}")
+    public ResponseEntity<Void> deletar(@PathVariable String matricula) {
+    Optional<Usuario> usuario = usuarioModel.buscarPorMatricula(matricula);
+
+    if (usuario.isPresent()) {
+        usuarioModel.deletarUsuario(usuario.get());
+        return ResponseEntity.noContent().build();
     }
+
+    return ResponseEntity.notFound().build();
+}
 }

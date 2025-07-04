@@ -1,28 +1,40 @@
 package br.edu.ifpe.dsc.model.dto;
 
 import java.util.UUID;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "usuarios")
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;  
+    private UUID id;
 
+    @Column(unique = true, nullable = false)
+    private String matricula;
+
+    @Column(nullable = false)
     private String nome;
-    private String sobrenome;   
 
-    public Usuario() {
-    }
+    @Column(nullable = false)
+    private String sobrenome;
 
-    public Usuario(String nome, String sobrenome) {
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FuncaoUsuario funcao;
+
+    public Usuario() {}
+
+    public Usuario(String matricula, String nome, String sobrenome, String email, FuncaoUsuario funcao) {
+        this.matricula = matricula;
         this.nome = nome;
         this.sobrenome = sobrenome;
+        setEmail(email); 
+        this.funcao = funcao;
     }
 
     public UUID getId() {
@@ -31,6 +43,14 @@ public class Usuario {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public String getMatricula() {
+        return matricula;
+    }
+
+    public void setMatricula(String matricula) {
+        this.matricula = matricula;
     }
 
     public String getNome() {
@@ -49,18 +69,23 @@ public class Usuario {
         this.sobrenome = sobrenome;
     }
 
-    @Override
-    public String toString() {
-        return "Usuario [nome=" + nome + ", sobrenome=" + sobrenome + "]";
+    public String getEmail() {
+        return email;
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((nome == null) ? 0 : nome.hashCode());
-        result = prime * result + ((sobrenome == null) ? 0 : sobrenome.hashCode());
-        return result;
+    public void setEmail(String email) {
+        if (email != null && email.endsWith("@dsc.com")) {
+            this.email = email;
+        } else {
+            throw new IllegalArgumentException("O e-mail deve terminar com @dsc.com");
+        }
     }
 
+    public FuncaoUsuario getFuncao() {
+        return funcao;
+    }
+
+    public void setFuncao(FuncaoUsuario funcao) {
+        this.funcao = funcao;
+    }
 }

@@ -2,7 +2,6 @@ package br.edu.ifpe.dsc.controlador;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,44 +17,51 @@ public class VeiculoControlador {
     @Autowired
     private VeiculoModel veiculoModel;
 
-    // POST - Cadastrar veículo
     @PostMapping("/cadastrar")
-    public Veiculo cadastrarVeiculo(@RequestBody Veiculo veiculo) {
-        return veiculoModel.salvarVeiculo(veiculo);
+    public ResponseEntity<?> cadastrar(@RequestBody Veiculo veiculo) {
+        try {
+            Veiculo salvo = veiculoModel.salvar(veiculo);
+            return ResponseEntity.ok(salvo);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
-    // GET - Listar todos os veículos
+    //GET - LISTAR TODOS VEÍCULOS
     @GetMapping("/listar")
     public List<Veiculo> listar() {
-        return veiculoModel.listarVeiculos();
+        return veiculoModel.listarTodos();
     }
 
-    // GET - Buscar veículo por ID
-    @GetMapping("/buscar/{matricula}")
-    public ResponseEntity<Veiculo> buscarPorId(@PathVariable UUID id) {
-        Optional<Veiculo> veiculo = veiculoModel.buscarPorId(id);
+    //GET - BUSCAR COM NÚMERO DE VEÍCULO
+    @GetMapping("/buscar/{numero}")
+    public ResponseEntity<Veiculo> buscarPorNumero(@PathVariable Integer numero) {
+        Optional<Veiculo> veiculo = veiculoModel.buscarPorNumero(numero);
         return veiculo.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    // PUT - Atualizar veículo
-    @PutMapping("/atualizar/{matricula}")
-    public ResponseEntity<Veiculo> atualizar(@PathVariable UUID id, @RequestBody Veiculo dados) {
-        Veiculo atualizado = veiculoModel.atualizarVeiculo(id, dados);
-        if (atualizado == null) {
-            return ResponseEntity.notFound().build();
+    //PUT - ATUALIZAR DADOS COM NÚMERO DO VEÍCULO
+    @PutMapping("/atualizar/{numero}")
+    public ResponseEntity<?> atualizar(@PathVariable Integer numero, @RequestBody Veiculo dados) {
+        try {
+            Veiculo atualizado = veiculoModel.atualizar(numero, dados);
+            if (atualizado == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(atualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.ok(atualizado);
     }
 
-    // DELETE - Remover veículo
-    @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable UUID id) {
-        Optional<Veiculo> veiculo = veiculoModel.buscarPorId(id);
+    //DELETE - DELETAR VEÍCULO COM NÚMERO
+   @DeleteMapping("/deletar/{numero}")
+    public ResponseEntity<Void> deletar(@PathVariable int numero) {
+        Optional<Veiculo> veiculo = veiculoModel.buscarPorNumero(numero);
         if (veiculo.isPresent()) {
-            veiculoModel.deletarVeiculo(id);
+            veiculoModel.deletarVeiculo(veiculo.get());
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
     }
 }
-

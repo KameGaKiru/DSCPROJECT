@@ -32,13 +32,21 @@ public class UsuarioModel {
 }  
 
     public Usuario atualizarUsuario(String matricula, Usuario dados) {
-        return usuarioRepositorio.findByMatricula(matricula)
-            .map(usuario -> {
+    return usuarioRepositorio.findByMatricula(matricula)
+        .map(usuario -> {
+            if (dados.getNome() != null) {
                 usuario.setNome(dados.getNome());
+            }
+            if (dados.getSobrenome() != null) {
                 usuario.setSobrenome(dados.getSobrenome());
+            }
+            if (dados.getEmail() != null) {
                 usuario.setEmail(dados.getEmail());
+            }
+            if (dados.getFuncao() != null) {
                 usuario.setFuncao(dados.getFuncao());
-                return usuarioRepositorio.save(usuario);
-            }).orElse(null);
-    }
+            }
+            return usuarioRepositorio.save(usuario);
+        }).orElse(null);
+}
 }

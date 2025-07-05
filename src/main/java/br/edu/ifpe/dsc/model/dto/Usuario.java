@@ -1,6 +1,8 @@
 package br.edu.ifpe.dsc.model.dto;
 
 import java.util.UUID;
+
+import br.edu.ifpe.dsc.model.FuncaoUsuario;
 import jakarta.persistence.*;
 
 @Entity

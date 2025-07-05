@@ -1,8 +1,10 @@
 package br.edu.ifpe.dsc.model.dto;
 
-import jakarta.persistence.*;
-
 import java.util.UUID;
+
+import br.edu.ifpe.dsc.model.MarcaVeiculo;
+import br.edu.ifpe.dsc.model.TipoVeiculo;
+import jakarta.persistence.*;
 
 @Entity
 public class Veiculo {
@@ -11,16 +13,24 @@ public class Veiculo {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(unique = true, nullable = false)
+    private int numero; 
+
+    @Column(unique = true, nullable = false)
     private String placa;
-    private String modelo;
-    private String tipo;
-    private int numero;
+
+    
+    @Enumerated(EnumType.STRING)
+    private MarcaVeiculo marca;
+
+    @Enumerated(EnumType.STRING)
+    private TipoVeiculo tipo;
 
     public Veiculo() {}
 
-    public Veiculo(String placa, String modelo, String tipo, int numero) {
+    public Veiculo(String placa, MarcaVeiculo marca, TipoVeiculo tipo, int numero) {
         this.placa = placa;
-        this.modelo = modelo;
+        this.marca = marca;
         this.tipo = tipo;
         this.numero = numero;
     }
@@ -29,8 +39,12 @@ public class Veiculo {
         return id;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public int getNumero() {
+        return numero;
+    }
+
+    public void setNumero(int numero) {
+        this.numero = numero;
     }
 
     public String getPlaca() {
@@ -41,27 +55,19 @@ public class Veiculo {
         this.placa = placa;
     }
 
-    public String getModelo() {
-        return modelo;
+    public MarcaVeiculo getMarca() {
+        return marca;
     }
 
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
+    public void setMarca(MarcaVeiculo marca) {
+        this.marca = marca;
     }
 
-    public String getTipo() {
+    public TipoVeiculo getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
+    public void setTipo(TipoVeiculo tipo) {
         this.tipo = tipo;
-    }
-
-    public int getNumero() {
-        return numero;
-    }
-
-    public void setNumero(int numero) {
-        this.numero = numero;
     }
 }

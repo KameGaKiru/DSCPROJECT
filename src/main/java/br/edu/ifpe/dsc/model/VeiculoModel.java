@@ -2,7 +2,6 @@ package br.edu.ifpe.dsc.model;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,31 +15,35 @@ public class VeiculoModel {
     @Autowired
     private VeiculoRepositorio veiculoRepositorio;
 
-    public Veiculo salvarVeiculo(Veiculo veiculo) {
+    public Veiculo salvar(Veiculo veiculo) {
         return veiculoRepositorio.save(veiculo);
     }
 
-    public List<Veiculo> listarVeiculos() {
+    public List<Veiculo> listarTodos() {
         return veiculoRepositorio.findAll();
     }
 
-    public Optional<Veiculo> buscarPorId(UUID id) {
-        return veiculoRepositorio.findById(id);
+    public Optional<Veiculo> buscarPorNumero(Integer numero) {
+        return veiculoRepositorio.findByNumero(numero);
     }
 
-    public void deletarVeiculo(UUID id) {
-        veiculoRepositorio.deleteById(id);
+    public void deletarVeiculo(Veiculo veiculo) {
+        veiculoRepositorio.delete(veiculo);
     }
 
-    public Veiculo atualizarVeiculo(UUID id, Veiculo dados) {
-        return veiculoRepositorio.findById(id)
-            .map(veiculo -> {
+    public Veiculo atualizar(Integer numero, Veiculo dados) {
+    return veiculoRepositorio.findByNumero(numero)
+        .map(veiculo -> {
+            if (dados.getPlaca() != null) {
                 veiculo.setPlaca(dados.getPlaca());
-                veiculo.setModelo(dados.getModelo());
+            }
+            if (dados.getMarca() != null) {
+                veiculo.setMarca(dados.getMarca());
+            }
+            if (dados.getTipo() != null) {
                 veiculo.setTipo(dados.getTipo());
-                veiculo.setNumero(dados.getNumero());
-                return veiculoRepositorio.save(veiculo);
-            }).orElse(null);
-    }
+            }
+            return veiculoRepositorio.save(veiculo);
+        }).orElse(null);
 }
-
+}

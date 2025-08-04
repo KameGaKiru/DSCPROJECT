@@ -11,4 +11,5 @@ import br.edu.ifpe.dsc.model.dto.Usuario;
 @Repository
 public interface UsuarioRepositorio extends JpaRepository<Usuario, UUID> {
     Optional<Usuario> findByMatricula(String matricula);
+    Optional<Usuario> findByEmail(String email);
 }

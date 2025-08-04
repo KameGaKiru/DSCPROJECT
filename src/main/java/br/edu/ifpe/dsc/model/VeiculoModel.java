@@ -32,18 +32,19 @@ public class VeiculoModel {
     }
 
     public Veiculo atualizar(Integer numero, Veiculo dados) {
-    return veiculoRepositorio.findByNumero(numero)
-        .map(veiculo -> {
-            if (dados.getPlaca() != null) {
-                veiculo.setPlaca(dados.getPlaca());
-            }
-            if (dados.getMarca() != null) {
-                veiculo.setMarca(dados.getMarca());
-            }
-            if (dados.getTipo() != null) {
-                veiculo.setTipo(dados.getTipo());
-            }
-            return veiculoRepositorio.save(veiculo);
-        }).orElse(null);
-}
+        return veiculoRepositorio.findByNumero(numero)
+            .map(veiculo -> {
+                if (dados.getPlaca() != null && !dados.getPlaca().isBlank()) {
+                    veiculo.setPlaca(dados.getPlaca());
+                }
+                if (dados.getMarca() != null) {
+                    veiculo.setMarca(dados.getMarca());
+                }
+                if (dados.getTipo() != null) {
+                    veiculo.setTipo(dados.getTipo());
+                }
+                return veiculoRepositorio.save(veiculo);
+            })
+            .orElse(null);
+    }
 }

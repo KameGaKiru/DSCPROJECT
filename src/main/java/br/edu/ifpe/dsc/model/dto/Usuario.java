@@ -1,7 +1,6 @@
 package br.edu.ifpe.dsc.model.dto;
 
 import java.util.UUID;
-
 import br.edu.ifpe.dsc.model.FuncaoUsuario;
 import jakarta.persistence.*;
 
@@ -29,13 +28,15 @@ public class Usuario {
     @Column(nullable = false)
     private FuncaoUsuario funcao;
 
+    @Column(nullable = false)
+    private String senha;
+
     public Usuario() {}
 
-    public Usuario(String matricula, String nome, String sobrenome, String email, FuncaoUsuario funcao) {
+    public Usuario(String matricula, String nome, String sobrenome, FuncaoUsuario funcao) {
         this.matricula = matricula;
         this.nome = nome;
         this.sobrenome = sobrenome;
-        setEmail(email); 
         this.funcao = funcao;
     }
 
@@ -76,11 +77,7 @@ public class Usuario {
     }
 
     public void setEmail(String email) {
-        if (email != null && email.endsWith("@dsc.com")) {
-            this.email = email;
-        } else {
-            throw new IllegalArgumentException("O e-mail deve terminar com @dsc.com");
-        }
+        this.email = email;
     }
 
     public FuncaoUsuario getFuncao() {
@@ -89,5 +86,13 @@ public class Usuario {
 
     public void setFuncao(FuncaoUsuario funcao) {
         this.funcao = funcao;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }

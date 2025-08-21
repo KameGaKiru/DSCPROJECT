@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+  <h2>Login</h2>
+  <form id="loginForm">
+    <div class="mb-3">
+      <label for="matricula" class="form-label">Matrícula</label>
+      <input type="text" class="form-control" id="matricula" required>
+    </div>
+    <div class="mb-3">
+      <label for="senha" class="form-label">Senha</label>
+      <input type="password" class="form-control" id="senha" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Entrar</button>
+    <a href="registro.html" class="btn btn-link">Registrar novo usuário</a>
+  </form>
+</div>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const matricula = document.getElementById("matricula").value;
+    const senha = document.getElementById("senha").value;
+
+    const headers = new Headers();
+    headers.set('Authorization', 'Basic ' + btoa(matricula + ":" + senha));
+
+    try {
+        const res = await fetch("http://localhost:8080/api/usuario/listar", { headers });
+        if(res.ok){
+            alert("Login bem-sucedido!");
+            // Salvar matricula para uso em outras telas
+            sessionStorage.setItem("matricula", matricula);
+            sessionStorage.setItem("senha", senha);
+            window.location.href = "dashboard.html";
+        } else {
+            alert("Usuário ou senha inválidos");
+        }
+    } catch(err) {
+        alert("Erro ao conectar com o servidor");
+    }
+});
+</script>
+</body>
+</html>

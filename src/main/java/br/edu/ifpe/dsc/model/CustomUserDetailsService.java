@@ -1,7 +1,5 @@
 package br.edu.ifpe.dsc.model;
 
-import java.util.Collections;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -21,9 +19,9 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
         return User.builder()
-                .username(usuario.getMatricula()) // login é a matricula
-                .password(usuario.getSenha())     // senha criptografada
-                .authorities(Collections.emptyList()) // sem roles por enquanto
+                .username(usuario.getMatricula()) // login é a matrícula
+                .password(usuario.getSenha())     // senha já criptografada com BCrypt
+                .roles(usuario.getFuncao().name()) // converte enum para String ("MOTORISTA", "COORDENADOR", "MECANICO")
                 .build();
     }
 }

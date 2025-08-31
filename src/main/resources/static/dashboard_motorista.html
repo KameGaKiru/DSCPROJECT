@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - Motorista</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+  <h2>Dashboard - Motorista</h2>
+  <button id="logoutBtn" class="btn btn-danger mb-3">Sair</button>
+
+  <h4>Lista de Funcionários</h4>
+  <table class="table table-striped table-bordered" id="usuariosTable">
+      <thead class="table-dark">
+          <tr>
+              <th>Matrícula</th>
+              <th>Nome</th>
+              <th>Função</th>
+              <th>Email</th>
+          </tr>
+      </thead>
+      <tbody></tbody>
+  </table>
+</div>
+
+<script>
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+const authHeader = localStorage.getItem("authHeader");
+
+if(!usuario || usuario.funcao !== "MOTORISTA"){
+    alert("Acesso negado!");
+    window.location.href = "index.html";
+}
+
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+    localStorage.clear();
+    window.location.href = "index.html";
+});
+
+// Listar usuários
+async function listarUsuarios(){
+    const res = await fetch("http://localhost:8080/api/usuario/listar", {
+        headers: { "Authorization": authHeader }
+    });
+
+    if (!res.ok) {
+        alert("Erro ao buscar usuários!");
+        return;
+    }
+
+    const usuarios = await res.json();
+    const tbody = document.querySelector("#usuariosTable tbody");
+    tbody.innerHTML = "";
+    usuarios.forEach(u=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${u.matricula}</td>
+          <td>${u.nome} ${u.sobrenome ?? ""}</td>
+          <td>${u.funcao}</td>
+          <td>${u.email}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+listarUsuarios();
+</script>
+</body>
+</html>

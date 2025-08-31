@@ -1,7 +1,14 @@
 const VEICULO_API = "http://localhost:8080/api/veiculo";
 const authV = localStorage.getItem("authHeader");
+const usuarioLogadoV = JSON.parse(localStorage.getItem("usuarioLogado"));
 
-// === LISTAR ===
+// Bloquear motorista
+if (usuarioLogadoV.funcao !== "COORDENADOR") {
+    alert("Acesso negado! Somente coordenadores podem acessar veículos.");
+    window.location.href = "dashboard_motorista.html";
+}
+
+// Listar
 async function listarVeiculos() {
     const response = await fetch(`${VEICULO_API}/listar`, {
         headers: { "Authorization": authV }
@@ -25,7 +32,7 @@ async function listarVeiculos() {
     });
 }
 
-// === CADASTRAR ===
+// Cadastrar
 async function cadastrarVeiculo() {
     const data = {
         placa: document.getElementById("placa").value,
@@ -49,7 +56,7 @@ async function cadastrarVeiculo() {
     }
 }
 
-// === ATUALIZAR ===
+// Atualizar
 async function atualizarVeiculo(id) {
     const novaPlaca = prompt("Nova placa:");
     const novoModelo = prompt("Novo modelo:");
@@ -71,7 +78,7 @@ async function atualizarVeiculo(id) {
     }
 }
 
-// === DELETAR ===
+// Deletar
 async function deletarVeiculo(id) {
     if (!confirm("Tem certeza que deseja excluir?")) return;
 
@@ -88,4 +95,4 @@ async function deletarVeiculo(id) {
     }
 }
 
-window.onload = listarVeiculos;
+window

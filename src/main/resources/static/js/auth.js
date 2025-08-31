@@ -1,34 +1,50 @@
 const API_URL = "http://localhost:8080/api/usuario";
-let authHeader = null;
 
-// === LOGIN ===
+// Login
 async function login() {
-    const username = document.getElementById("username").value;
+    const matricula = document.getElementById("matricula").value;
     const senha = document.getElementById("senha").value;
 
-    authHeader = "Basic " + btoa(username + ":" + senha);
+    try {
+        const response = await fetch(`${API_URL}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ matricula, senha })
+        });
 
-    const response = await fetch(`${API_URL}/listar`, {
-        method: "GET",
-        headers: { "Authorization": authHeader }
-    });
+        if (response.ok) {
+            const dados = await response.json();
 
-    if (response.ok) {
-        alert("Login realizado com sucesso!");
-        localStorage.setItem("authHeader", authHeader);
-        window.location.href = "usuarios.html";
-    } else {
-        alert("Usuário ou senha inválidos!");
+            // Salvar dados no localStorage
+            localStorage.setItem("authHeader", dados.authHeader);
+            localStorage.setItem("usuario", JSON.stringify(dados.usuario));
+
+            console.log(localStorage.getItem("usuario"));
+
+            if (dados.usuario.funcao === "MOTORISTA") {
+                window.location.href = "dashboard_motorista.html";
+            } else if (dados.usuario.funcao === "COORDENADOR") {
+                window.location.href = "dashboard_coordenador.html";
+            } else {
+                alert("Função não reconhecida!");
+            }
+        } else {
+            alert("Usuário ou senha inválidos!");
+        }
+    } catch (err) {
+        alert("Erro ao conectar ao servidor!");
+        console.error(err);
     }
 }
 
-// === REGISTRO DE NOVO USUÁRIO ===
+// Registrar usuários
 async function registrar() {
     const data = {
         nome: document.getElementById("nome").value,
         sobrenome: document.getElementById("sobrenome").value,
-        login: document.getElementById("login").value,
-        senha: document.getElementById("senha").value
+        matricula: document.getElementById("matricula").value,
+        senha: document.getElementById("senha").value,
+        funcao: document.getElementById("funcao").value // MOTORISTA ou COORDENADOR
     };
 
     const response = await fetch(`${API_URL}/cadastrar`, {

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - Coordenador</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+  <h2>Dashboard - Coordenador</h2>
+  <button id="logoutBtn" class="btn btn-danger mb-3">Sair</button>
+
+  <h4>Lista de Veículos</h4>
+  <table class="table table-striped table-bordered">
+      <thead class="table-dark">
+          <tr>
+              <th>Número</th>
+              <th>Placa</th>
+              <th>Marca</th>
+              <th>Tipo</th>
+              <th>Ações</th>
+          </tr>
+      </thead>
+      <tbody id="veiculosTable"></tbody>
+  </table>
+
+  <h4 class="mt-4">Cadastrar Veículo</h4>
+  <form id="cadVeiculoForm" class="mb-3">
+    <input type="number" id="numero" placeholder="Numero" class="form-control mb-2" required>  
+    <input type="text" id="placa" placeholder="Placa" class="form-control mb-2" required>
+      <select id="marca" class="form-select mb-2" required>
+          <option value="">Selecione a Marca</option>
+          <option value="FIAT">FIAT</option>
+          <option value="MERCEDES">MERCEDES</option>
+          <option value="IVECO">IVECO</option>
+          <option value="RENAULT">RENAULT</option>
+          <option value="VOLKSWAGEN">VOLKSWAGEN</option>
+          <option value="CHEVROLET">CHEVROLET</option>
+          <option value="TOYOTA">TOYOTA</option>
+      </select>
+      <select id="tipo" class="form-select mb-2" required>
+          <option value="">Selecione o Tipo</option>
+          <option value="KOMBI">KOMBI</option>
+          <option value="DOBLO">DOBLO</option>
+          <option value="VAN">VAN</option>
+          <option value="MICROONIBUS">MICROÔNIBUS</option>
+          <option value="ONIBUS">ÔNIBUS</option>
+          <option value="PARTICULAR">PARTICULAR</option>
+      </select>
+      <button type="submit" class="btn btn-success">Cadastrar</button>
+  </form>
+</div>
+
+<!--  Modal edição-->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Veículo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editVeiculoForm">
+          <input type="hidden" id="editNumero">
+          <div class="mb-2">
+            <label class="form-label">Número</label>
+            <input type="text" id="editNumero" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Placa</label>
+            <input type="text" id="editPlaca" class="form-control" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Marca</label>
+            <select id="editMarca" class="form-select" required>
+              <option value="FIAT">FIAT</option>
+              <option value="MERCEDES">MERCEDES</option>
+              <option value="IVECO">IVECO</option>
+              <option value="RENAULT">RENAULT</option>
+              <option value="VOLKSWAGEN">VOLKSWAGEN</option>
+              <option value="CHEVROLET">CHEVROLET</option>
+              <option value="TOYOTA">TOYOTA</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Tipo</label>
+            <select id="editTipo" class="form-select" required>
+              <option value="KOMBI">KOMBI</option>
+              <option value="DOBLO">DOBLO</option>
+              <option value="VAN">VAN</option>
+              <option value="MICROONIBUS">MICROÔNIBUS</option>
+              <option value="ONIBUS">ÔNIBUS</option>
+              <option value="PARTICULAR">PARTICULAR</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary mt-2">Salvar alterações</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+const authHeader = localStorage.getItem("authHeader");
+
+if(!usuario || usuario.funcao !== "COORDENADOR"){
+    alert("Acesso negado!");
+    window.location.href = "index.html";
+}
+
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+    localStorage.clear();
+    window.location.href = "index.html";
+});
+
+// Lstar veículos
+async function listarVeiculos(){
+    const res = await fetch("http://localhost:8080/api/veiculo/listar", {
+        headers: { "Authorization": authHeader }
+    });
+
+    if (!res.ok) {
+        alert("Erro ao buscar veículos!");
+        return;
+    }
+
+    const veiculos = await res.json();
+    const tbody = document.getElementById("veiculosTable");
+    tbody.innerHTML = "";
+    veiculos.forEach(v=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${v.numero}</td>
+          <td>${v.placa}</td>
+          <td>${v.marca}</td>
+          <td>${v.tipo}</td>
+          <td>
+            <button class="btn btn-warning btn-sm" onclick="abrirModal(${v.numero}, '${v.placa}', '${v.marca}', '${v.tipo}')">Editar</button>
+            <button class="btn btn-danger btn-sm" onclick="deletarVeiculo(${v.numero})">Excluir</button>
+          </td>`;
+        tbody.appendChild(tr);
+    });
+}
+listarVeiculos();
+
+// Cadastrar véiculo
+document.getElementById("cadVeiculoForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+    const data = {
+        numero: document.getElementById("numero").value,
+        placa: document.getElementById("placa").value,
+        marca: document.getElementById("marca").value,
+        tipo: document.getElementById("tipo").value
+    };
+    const res = await fetch("http://localhost:8080/api/veiculo/cadastrar", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": authHeader
+        },
+        body: JSON.stringify(data)
+    });
+    if(res.ok){
+        alert("Veículo cadastrado!");
+        listarVeiculos();
+        this.reset();
+    } else {
+        alert("Erro ao cadastrar veículo");
+    }
+});
+
+// Abrir modal de edição
+function abrirModal(numero, placa, marca, tipo){
+    document.getElementById("editNumero").value = numero;
+    document.getElementById("editPlaca").value = placa;
+    document.getElementById("editMarca").value = marca;
+    document.getElementById("editTipo").value = tipo;
+
+    const modal = new bootstrap.Modal(document.getElementById("editModal"));
+    modal.show();
+}
+
+// Salvar edição de veículo
+document.getElementById("editVeiculoForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+    const numero = document.getElementById("editNumero").value;
+    const data = {
+        placa: document.getElementById("editPlaca").value,
+        marca: document.getElementById("editMarca").value,
+        tipo: document.getElementById("editTipo").value
+    };
+
+    const res = await fetch(`http://localhost:8080/api/veiculo/atualizar/${numero}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": authHeader
+        },
+        body: JSON.stringify(data)
+    });
+    if(res.ok){
+        alert("Veículo atualizado!");
+        listarVeiculos();
+        bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+    } else {
+        alert("Erro ao editar veículo");
+    }
+});
+
+// Deletar veículo
+async function deletarVeiculo(numero){
+    if(!confirm("Confirma exclusão?")) return;
+
+    const res = await fetch(`http://localhost:8080/api/veiculo/deletar/${numero}`, {
+        method: "DELETE",
+        headers: { "Authorization": authHeader }
+    });
+    if(res.ok){
+        alert("Veículo excluído!");
+        listarVeiculos();
+    } else {
+        alert("Erro ao excluir veículo");
+    }
+}
+</script>
+</body>
+</html>

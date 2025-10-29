@@ -10,6 +10,7 @@
 <div class="container mt-5">
   <h2>Dashboard - Motorista</h2>
   <button id="logoutBtn" class="btn btn-danger mb-3">Sair</button>
+  <button id="checklistBtn" class="btn btn-primary mb-3 ms-2">Fazer Checklist</button>
 
   <h4>Lista de Funcionários</h4>
   <table class="table table-striped table-bordered" id="usuariosTable">
@@ -37,6 +38,10 @@ if(!usuario || usuario.funcao !== "MOTORISTA"){
 document.getElementById("logoutBtn").addEventListener("click", ()=>{
     localStorage.clear();
     window.location.href = "index.html";
+});
+
+document.getElementById("checklistBtn").addEventListener("click", ()=>{
+    window.location.href = "dashboard_checklist.html";
 });
 
 // Listar usuários

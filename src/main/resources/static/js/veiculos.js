@@ -1,98 +1,152 @@
-const VEICULO_API = "http://localhost:8080/api/veiculo";
-const authV = localStorage.getItem("authHeader");
-const usuarioLogadoV = JSON.parse(localStorage.getItem("usuarioLogado"));
+const API = "http://localhost:8080/api/veiculo";
+const usuario    = JSON.parse(localStorage.getItem("usuario"));   // ← era "usuarioLogado"
+const authHeader = localStorage.getItem("authHeader");
 
-// Bloquear motorista
-if (usuarioLogadoV.funcao !== "COORDENADOR") {
-    alert("Acesso negado! Somente coordenadores podem acessar veículos.");
-    window.location.href = "dashboard_motorista.html";
+// VALIDAÇÃO
+if (!usuario || !authHeader || usuario.funcao?.toUpperCase() !== "COORDENADOR") {
+    alert("Acesso negado!");
+    localStorage.clear();
+    window.location.href = "index.html";
 }
 
-// Listar
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.clear();
+    window.location.href = "index.html";
+});
+
+// LISTAR
 async function listarVeiculos() {
-    const response = await fetch(`${VEICULO_API}/listar`, {
-        headers: { "Authorization": authV }
-    });
-    const veiculos = await response.json();
+    try {
+        const res = await fetch(`${API}/listar`, {
+            headers: { "Authorization": authHeader }
+        });
 
-    const tbody = document.getElementById("veiculosTable");
-    tbody.innerHTML = "";
-    veiculos.forEach(v => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${v.id}</td>
+        if (res.status === 401 || res.status === 403) {
+            alert("Sessão expirada!");
+            localStorage.clear();
+            window.location.href = "index.html";
+            return;
+        }
+
+        const veiculos = await res.json();
+        const tbody = document.getElementById("veiculosTable");
+        tbody.innerHTML = "";
+
+        veiculos.forEach(v => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${v.numero}</td>
                 <td>${v.placa}</td>
-                <td>${v.modelo}</td>
+                <td>${v.marca}</td>
+                <td>${v.tipo}</td>
                 <td>
-                    <button onclick="deletarVeiculo('${v.id}')">Excluir</button>
-                    <button onclick="atualizarVeiculo('${v.id}')">Editar</button>
+                    <button class="btn btn-warning btn-sm"
+                        onclick="abrirModal(${v.numero}, '${v.placa}', '${v.marca}', '${v.tipo}')">
+                        Editar
+                    </button>
+                    <button class="btn btn-danger btn-sm"
+                        onclick="deletarVeiculo(${v.numero})">
+                        Excluir
+                    </button>
                 </td>
-            </tr>
-        `;
-    });
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        alert("Erro ao conectar ao servidor!");
+        console.error(err);
+    }
 }
 
-// Cadastrar
-async function cadastrarVeiculo() {
+listarVeiculos();
+
+// CADASTRAR
+document.getElementById("cadVeiculoForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
     const data = {
-        placa: document.getElementById("placa").value,
-        modelo: document.getElementById("modelo").value
+        numero: parseInt(document.getElementById("numero").value),
+        placa:  document.getElementById("placa").value,
+        marca:  document.getElementById("marca").value,
+        tipo:   document.getElementById("tipo").value
     };
 
-    const response = await fetch(`${VEICULO_API}/cadastrar`, {
+    const res = await fetch(`${API}/cadastrar`, {
         method: "POST",
-        headers: { 
-            "Authorization": authV,
-            "Content-Type": "application/json"
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": authHeader
         },
         body: JSON.stringify(data)
     });
 
-    if (response.ok) {
+    if (res.ok) {
         alert("Veículo cadastrado!");
         listarVeiculos();
+        this.reset();
     } else {
-        alert("Erro ao cadastrar veículo!");
+        const erro = await res.text();
+        alert("Erro: " + erro);
     }
+});
+
+// ABRIR MODAL
+function abrirModal(numero, placa, marca, tipo) {
+    document.getElementById("numeroOriginal").value = numero;
+    document.getElementById("editNumero").value     = numero;
+    document.getElementById("editPlaca").value      = placa;
+    document.getElementById("editMarca").value      = marca;
+    document.getElementById("editTipo").value       = tipo;
+
+    new bootstrap.Modal(document.getElementById("editModal")).show();
 }
 
-// Atualizar
-async function atualizarVeiculo(id) {
-    const novaPlaca = prompt("Nova placa:");
-    const novoModelo = prompt("Novo modelo:");
+// SALVAR EDIÇÃO
+document.getElementById("editVeiculoForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
 
-    const response = await fetch(`${VEICULO_API}/atualizar/${id}`, {
+    const numeroOriginal = document.getElementById("numeroOriginal").value;
+
+    const data = {
+        numero: parseInt(document.getElementById("editNumero").value),
+        placa:  document.getElementById("editPlaca").value,
+        marca:  document.getElementById("editMarca").value,
+        tipo:   document.getElementById("editTipo").value
+    };
+
+    const res = await fetch(`${API}/atualizar/${numeroOriginal}`, {
         method: "PUT",
-        headers: { 
-            "Authorization": authV,
-            "Content-Type": "application/json"
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": authHeader
         },
-        body: JSON.stringify({ placa: novaPlaca, modelo: novoModelo })
+        body: JSON.stringify(data)
     });
 
-    if (response.ok) {
+    if (res.ok) {
         alert("Veículo atualizado!");
         listarVeiculos();
+        bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
     } else {
-        alert("Erro ao atualizar veículo!");
+        const erro = await res.text();
+        alert("Erro: " + erro);
     }
-}
+});
 
-// Deletar
-async function deletarVeiculo(id) {
-    if (!confirm("Tem certeza que deseja excluir?")) return;
+// DELETAR
+async function deletarVeiculo(numero) {
+    if (!confirm("Confirma exclusão?")) return;
 
-    const response = await fetch(`${VEICULO_API}/deletar/${id}`, {
+    const res = await fetch(`${API}/deletar/${numero}`, {
         method: "DELETE",
-        headers: { "Authorization": authV }
+        headers: { "Authorization": authHeader }
     });
 
-    if (response.ok) {
-        alert("Veículo deletado!");
+    if (res.ok) {
+        alert("Veículo excluído!");
         listarVeiculos();
     } else {
-        alert("Erro ao deletar veículo!");
+        alert("Erro ao excluir veículo");
     }
 }
-
-window

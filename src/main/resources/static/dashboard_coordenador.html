@@ -5,96 +5,191 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard - Coordenador</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f0f2f5; }
+    .topbar {
+      background: #1a1a2e; color: #fff;
+      padding: 14px 28px; display: flex; align-items: center; gap: 12px;
+      margin-bottom: 28px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .topbar h1 { font-size: 1.1rem; margin: 0; font-weight: 600; }
+    .topbar .actions { display: flex; gap: 8px; margin-left: auto; }
+    .stat-card {
+      border: none; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 22px 28px; display: flex; align-items: center; gap: 18px; background: #fff;
+    }
+    .stat-icon {
+      font-size: 2.4rem; width: 60px; height: 60px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .stat-icon.blue   { background: #e8f0fe; }
+    .stat-icon.green  { background: #e6f9f0; }
+    .stat-icon.orange { background: #fff3e0; }
+    .stat-label { font-size: .8rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; }
+    .stat-value { font-size: 2rem; font-weight: 700; line-height: 1.1; color: #1a1a2e; }
+    .stat-sub   { font-size: .82rem; color: #6c757d; margin-top: 2px; }
+    .card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 24px; }
+    .card-header-bar {
+      background: #1a1a2e; color: #fff; border-radius: 12px 12px 0 0;
+      padding: 13px 20px; font-weight: 600; font-size: .95rem;
+    }
+    .table th { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+    .table td { font-size: .88rem; vertical-align: middle; }
+  </style>
 </head>
 <body>
-<div class="container mt-5">
-  <h2>Dashboard - Coordenador</h2>
-  <button id="logoutBtn" class="btn btn-danger mb-3">Sair</button>
 
-  <h4>Lista de Veículos</h4>
-  <table class="table table-striped table-bordered">
-      <thead class="table-dark">
-          <tr>
-              <th>Número</th>
-              <th>Placa</th>
-              <th>Marca</th>
-              <th>Tipo</th>
-              <th>Ações</th>
-          </tr>
-      </thead>
-      <tbody id="veiculosTable"></tbody>
-  </table>
-
-  <h4 class="mt-4">Cadastrar Veículo</h4>
-  <form id="cadVeiculoForm" class="mb-3">
-    <input type="number" id="numero" placeholder="Numero" class="form-control mb-2" required>  
-    <input type="text" id="placa" placeholder="Placa" class="form-control mb-2" required>
-      <select id="marca" class="form-select mb-2" required>
-          <option value="">Selecione a Marca</option>
-          <option value="FIAT">FIAT</option>
-          <option value="MERCEDES">MERCEDES</option>
-          <option value="IVECO">IVECO</option>
-          <option value="RENAULT">RENAULT</option>
-          <option value="VOLKSWAGEN">VOLKSWAGEN</option>
-          <option value="CHEVROLET">CHEVROLET</option>
-          <option value="TOYOTA">TOYOTA</option>
-      </select>
-      <select id="tipo" class="form-select mb-2" required>
-          <option value="">Selecione o Tipo</option>
-          <option value="KOMBI">KOMBI</option>
-          <option value="DOBLO">DOBLO</option>
-          <option value="VAN">VAN</option>
-          <option value="MICROONIBUS">MICROÔNIBUS</option>
-          <option value="ONIBUS">ÔNIBUS</option>
-          <option value="PARTICULAR">PARTICULAR</option>
-      </select>
-      <button type="submit" class="btn btn-success">Cadastrar</button>
-  </form>
+<div class="topbar">
+  <span style="font-size:1.5rem">🗂️</span>
+  <h1>Dashboard — Coordenador</h1>
+  <div class="actions">
+    <button id="logoutBtn" class="btn btn-danger btn-sm">Sair</button>
+  </div>
 </div>
 
-<!--  Modal edição-->
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+<div class="container pb-5">
+
+  <!-- CARDS -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-icon blue">🚌</div>
+        <div>
+          <div class="stat-label">Veículos Cadastrados</div>
+          <div class="stat-value" id="totalVeiculos">—</div>
+          <div class="stat-sub">na frota</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-icon green">📋</div>
+        <div>
+          <div class="stat-label">Checklists Registrados</div>
+          <div class="stat-value" id="totalChecklists">—</div>
+          <div class="stat-sub">por todos os motoristas</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-icon orange">👷</div>
+        <div>
+          <div class="stat-label">Motoristas Ativos</div>
+          <div class="stat-value" id="totalMotoristas">—</div>
+          <div class="stat-sub">com checklists registrados</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FROTA -->
+  <div class="card">
+    <div class="card-header-bar">🚌 Frota de Veículos</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>Número</th><th>Placa</th><th>Marca</th><th>Tipo</th><th>Checklists</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="veiculosTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CADASTRAR -->
+  <div class="card">
+    <div class="card-header-bar">➕ Cadastrar Novo Veículo</div>
+    <div class="card-body">
+      <form id="cadVeiculoForm">
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Número</label>
+            <input type="number" id="numero" class="form-control" placeholder="Ex: 101" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Placa</label>
+            <input type="text" id="placa" class="form-control" placeholder="Ex: ABC-1234" required>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Marca</label>
+            <select id="marca" class="form-select" required>
+              <option value="">Selecione</option>
+              <option>FIAT</option><option>MERCEDES</option><option>IVECO</option>
+              <option>RENAULT</option><option>VOLKSWAGEN</option><option>CHEVROLET</option><option>TOYOTA</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Tipo</label>
+            <select id="tipo" class="form-select" required>
+              <option value="">Selecione</option>
+              <option>KOMBI</option><option>DOBLO</option><option>VAN</option>
+              <option>MICROONIBUS</option><option>ONIBUS</option><option>PARTICULAR</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-success mt-3 px-4">Cadastrar Veículo</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- RANKING -->
+  <div class="card">
+    <div class="card-header-bar">🏆 Ranking de Motoristas por Checklists</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-dark">
+            <tr><th>Posição</th><th>Motorista</th><th>Matrícula</th><th>Checklists</th></tr>
+          </thead>
+          <tbody id="rankingTable">
+            <tr><td colspan="4" class="text-center text-muted py-3">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL EDITAR -->
+<div class="modal fade" id="editModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Editar Veículo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">✏️ Editar Veículo</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <form id="editVeiculoForm">
-          <input type="hidden" id="editNumero">
-          <div class="mb-2">
-            <label class="form-label">Número</label>
-            <input type="text" id="editNumero" class="form-control" required>
+          <input type="hidden" id="numeroOriginal">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Número</label>
+            <input type="number" id="editNumero" class="form-control" required>
+            <div class="form-text">Você pode alterar o número do veículo.</div>
           </div>
-          <div class="mb-2">
-            <label class="form-label">Placa</label>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Placa</label>
             <input type="text" id="editPlaca" class="form-control" required>
           </div>
-          <div class="mb-2">
-            <label class="form-label">Marca</label>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Marca</label>
             <select id="editMarca" class="form-select" required>
-              <option value="FIAT">FIAT</option>
-              <option value="MERCEDES">MERCEDES</option>
-              <option value="IVECO">IVECO</option>
-              <option value="RENAULT">RENAULT</option>
-              <option value="VOLKSWAGEN">VOLKSWAGEN</option>
-              <option value="CHEVROLET">CHEVROLET</option>
-              <option value="TOYOTA">TOYOTA</option>
+              <option>FIAT</option><option>MERCEDES</option><option>IVECO</option>
+              <option>RENAULT</option><option>VOLKSWAGEN</option><option>CHEVROLET</option><option>TOYOTA</option>
             </select>
           </div>
-          <div class="mb-2">
-            <label class="form-label">Tipo</label>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Tipo</label>
             <select id="editTipo" class="form-select" required>
-              <option value="KOMBI">KOMBI</option>
-              <option value="DOBLO">DOBLO</option>
-              <option value="VAN">VAN</option>
-              <option value="MICROONIBUS">MICROÔNIBUS</option>
-              <option value="ONIBUS">ÔNIBUS</option>
-              <option value="PARTICULAR">PARTICULAR</option>
+              <option>KOMBI</option><option>DOBLO</option><option>VAN</option>
+              <option>MICROONIBUS</option><option>ONIBUS</option><option>PARTICULAR</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-primary mt-2">Salvar alterações</button>
+          <button type="submit" class="btn btn-primary px-4">Salvar alterações</button>
         </form>
       </div>
     </div>
@@ -103,124 +198,198 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const usuario = JSON.parse(localStorage.getItem("usuario"));
+const API           = "http://localhost:8080/api/veiculo";
+const CHECKLIST_API = "http://localhost:8080/api/checklist";
+const USUARIO_API   = "http://localhost:8080/api/usuario";
+
+const usuario    = JSON.parse(localStorage.getItem("usuario"));
 const authHeader = localStorage.getItem("authHeader");
 
-if(!usuario || usuario.funcao !== "COORDENADOR"){
-    alert("Acesso negado!");
+if (!usuario || !authHeader || usuario.funcao?.toUpperCase() !== "COORDENADOR") {
+    alert("Sessão inválida ou acesso negado!");
+    localStorage.clear();
     window.location.href = "index.html";
 }
 
-document.getElementById("logoutBtn").addEventListener("click", ()=>{
+document.getElementById("logoutBtn").addEventListener("click", () => {
     localStorage.clear();
     window.location.href = "index.html";
 });
 
-// Lstar veículos
-async function listarVeiculos(){
-    const res = await fetch("http://localhost:8080/api/veiculo/listar", {
-        headers: { "Authorization": authHeader }
-    });
+// Carrega tudo em paralelo 
+async function carregarDashboard() {
+    try {
+        const [resV, resC, resU] = await Promise.all([
+            fetch(`${API}/listar`,           { headers: { "Authorization": authHeader } }),
+            fetch(`${CHECKLIST_API}/listar`, { headers: { "Authorization": authHeader } }),
+            fetch(`${USUARIO_API}/listar`,   { headers: { "Authorization": authHeader } })
+        ]);
 
-    if (!res.ok) {
-        alert("Erro ao buscar veículos!");
-        return;
+        if ([resV, resC, resU].some(r => r.status === 401)) {
+            alert("Sessão expirada!");
+            localStorage.clear();
+            window.location.href = "index.html";
+            return;
+        }
+
+        const veiculos   = resV.ok ? await resV.json() : [];
+        const checklists = resC.ok ? await resC.json() : [];
+        const usuarios   = resU.ok ? await resU.json() : [];
+
+        // Contagens
+        const checkPorVeiculo = {};
+        checklists.forEach(c => {
+            const n = c.veiculo?.numero;
+            if (n != null) checkPorVeiculo[n] = (checkPorVeiculo[n] || 0) + 1;
+        });
+
+        const checkPorMotorista = {};
+        checklists.forEach(c => {
+            const m = c.motorista?.matricula;
+            if (m) checkPorMotorista[m] = (checkPorMotorista[m] || 0) + 1;
+        });
+
+        const motoristas = usuarios.filter(u => u.funcao?.toUpperCase() === "MOTORISTA");
+
+        // Cards
+        document.getElementById("totalVeiculos").textContent   = veiculos.length;
+        document.getElementById("totalChecklists").textContent = checklists.length;
+        document.getElementById("totalMotoristas").textContent =
+            motoristas.filter(m => checkPorMotorista[m.matricula] > 0).length;
+
+        // Tabela de veículos
+        const tbody = document.getElementById("veiculosTable");
+        tbody.innerHTML = "";
+        veiculos.forEach(v => {
+            const total = checkPorVeiculo[v.numero] || 0;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${v.numero}</td>
+                <td>${v.placa}</td>
+                <td>${v.marca}</td>
+                <td>${v.tipo}</td>
+                <td><span class="badge bg-primary">${total}</span></td>
+                <td>
+                    <button class="btn btn-warning btn-sm btn-editar"
+                        data-numero="${v.numero}"
+                        data-placa="${v.placa}"
+                        data-marca="${v.marca}"
+                        data-tipo="${v.tipo}">Editar</button>
+                    <button class="btn btn-danger btn-sm btn-deletar"
+                        data-numero="${v.numero}">Excluir</button>
+                </td>`;
+            tbody.appendChild(tr);
+        });
+
+        // Ranking
+        const rankingBody = document.getElementById("rankingTable");
+        const ranking = motoristas
+            .map(m => ({ ...m, total: checkPorMotorista[m.matricula] || 0 }))
+            .sort((a, b) => b.total - a.total);
+
+        if (ranking.length === 0) {
+            rankingBody.innerHTML = `<tr><td colspan="4" class="text-center text-muted">Nenhum motorista cadastrado.</td></tr>`;
+        } else {
+            rankingBody.innerHTML = "";
+            const medalhas = ["🥇", "🥈", "🥉"];
+            ranking.forEach((m, i) => {
+                const tr = document.createElement("tr");
+                if (i === 0) tr.classList.add("table-warning", "fw-semibold");
+                tr.innerHTML = `
+                    <td>${medalhas[i] ?? i + 1 + "º"}</td>
+                    <td>${m.nome} ${m.sobrenome ?? ""}</td>
+                    <td>${m.matricula}</td>
+                    <td><span class="badge ${m.total > 0 ? "bg-success" : "bg-secondary"}">${m.total}</span></td>`;
+                rankingBody.appendChild(tr);
+            });
+        }
+
+    } catch (err) {
+        console.error("Erro:", err);
+        alert("Erro ao conectar ao servidor!");
+    }
+}
+
+carregarDashboard();
+
+// Event delegation na tabela (botões Editar e Excluir) 
+document.getElementById("veiculosTable").addEventListener("click", function(e) {
+    const btnEditar  = e.target.closest(".btn-editar");
+    const btnDeletar = e.target.closest(".btn-deletar");
+
+    if (btnEditar) {
+        const { numero, placa, marca, tipo } = btnEditar.dataset;
+        // Guarda o número original para usar na URL do PUT
+        document.getElementById("numeroOriginal").value = numero;
+        document.getElementById("editNumero").value     = numero;
+        document.getElementById("editPlaca").value      = placa;
+        document.getElementById("editMarca").value      = marca;
+        document.getElementById("editTipo").value       = tipo;
+        new bootstrap.Modal(document.getElementById("editModal")).show();
     }
 
-    const veiculos = await res.json();
-    const tbody = document.getElementById("veiculosTable");
-    tbody.innerHTML = "";
-    veiculos.forEach(v=>{
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${v.numero}</td>
-          <td>${v.placa}</td>
-          <td>${v.marca}</td>
-          <td>${v.tipo}</td>
-          <td>
-            <button class="btn btn-warning btn-sm" onclick="abrirModal(${v.numero}, '${v.placa}', '${v.marca}', '${v.tipo}')">Editar</button>
-            <button class="btn btn-danger btn-sm" onclick="deletarVeiculo(${v.numero})">Excluir</button>
-          </td>`;
-        tbody.appendChild(tr);
-    });
-}
-listarVeiculos();
+    if (btnDeletar) {
+        deletarVeiculo(btnDeletar.dataset.numero);
+    }
+});
 
-// Cadastrar véiculo
-document.getElementById("cadVeiculoForm").addEventListener("submit", async function(e){
+// CADASTRAR
+document.getElementById("cadVeiculoForm").addEventListener("submit", async function(e) {
     e.preventDefault();
     const data = {
-        numero: document.getElementById("numero").value,
-        placa: document.getElementById("placa").value,
-        marca: document.getElementById("marca").value,
-        tipo: document.getElementById("tipo").value
+        numero: parseInt(document.getElementById("numero").value),
+        placa:  document.getElementById("placa").value,
+        marca:  document.getElementById("marca").value,
+        tipo:   document.getElementById("tipo").value
     };
-    const res = await fetch("http://localhost:8080/api/veiculo/cadastrar", {
+    const res = await fetch(`${API}/cadastrar`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": authHeader
-        },
+        headers: { "Content-Type": "application/json", "Authorization": authHeader },
         body: JSON.stringify(data)
     });
-    if(res.ok){
+    if (res.ok) {
         alert("Veículo cadastrado!");
-        listarVeiculos();
         this.reset();
+        carregarDashboard();
     } else {
-        alert("Erro ao cadastrar veículo");
+        alert("Erro: " + await res.text());
     }
 });
 
-// Abrir modal de edição
-function abrirModal(numero, placa, marca, tipo){
-    document.getElementById("editNumero").value = numero;
-    document.getElementById("editPlaca").value = placa;
-    document.getElementById("editMarca").value = marca;
-    document.getElementById("editTipo").value = tipo;
-
-    const modal = new bootstrap.Modal(document.getElementById("editModal"));
-    modal.show();
-}
-
-// Salvar edição de veículo
-document.getElementById("editVeiculoForm").addEventListener("submit", async function(e){
+// EDITAR
+document.getElementById("editVeiculoForm").addEventListener("submit", async function(e) {
     e.preventDefault();
-    const numero = document.getElementById("editNumero").value;
+    const numeroOriginal = document.getElementById("numeroOriginal").value;
     const data = {
-        placa: document.getElementById("editPlaca").value,
-        marca: document.getElementById("editMarca").value,
-        tipo: document.getElementById("editTipo").value
+        numero: parseInt(document.getElementById("editNumero").value),
+        placa:  document.getElementById("editPlaca").value,
+        marca:  document.getElementById("editMarca").value,
+        tipo:   document.getElementById("editTipo").value
     };
-
-    const res = await fetch(`http://localhost:8080/api/veiculo/atualizar/${numero}`, {
+    const res = await fetch(`${API}/atualizar/${numeroOriginal}`, {
         method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": authHeader
-        },
+        headers: { "Content-Type": "application/json", "Authorization": authHeader },
         body: JSON.stringify(data)
     });
-    if(res.ok){
+    if (res.ok) {
         alert("Veículo atualizado!");
-        listarVeiculos();
         bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+        carregarDashboard();
     } else {
-        alert("Erro ao editar veículo");
+        alert("Erro: " + await res.text());
     }
 });
 
-// Deletar veículo
-async function deletarVeiculo(numero){
-    if(!confirm("Confirma exclusão?")) return;
-
-    const res = await fetch(`http://localhost:8080/api/veiculo/deletar/${numero}`, {
+// DELETAR
+async function deletarVeiculo(numero) {
+    if (!confirm("Confirma exclusão?")) return;
+    const res = await fetch(`${API}/deletar/${numero}`, {
         method: "DELETE",
         headers: { "Authorization": authHeader }
     });
-    if(res.ok){
+    if (res.ok) {
         alert("Veículo excluído!");
-        listarVeiculos();
+        carregarDashboard();
     } else {
         alert("Erro ao excluir veículo");
     }

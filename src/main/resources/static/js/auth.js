@@ -1,62 +1,67 @@
-const API_URL = "http://localhost:8080/api/usuario";
+    const API_URL = "http://localhost:8080/api/usuario";
 
-// Login
-async function login() {
-    const matricula = document.getElementById("matricula").value;
-    const senha = document.getElementById("senha").value;
+    async function login() {
+        const matricula = document.getElementById("matricula").value;
+        const senha = document.getElementById("senha").value;
 
-    try {
-        const response = await fetch(`${API_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ matricula, senha })
-        });
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ matricula, senha })
+            });
 
-        if (response.ok) {
+            if (!response.ok) {
+                alert("Usuário ou senha inválidos!");
+                return;
+            }
+
             const dados = await response.json();
 
-            // Salvar dados no localStorage
             localStorage.setItem("authHeader", dados.authHeader);
             localStorage.setItem("usuario", JSON.stringify(dados.usuario));
 
-            console.log(localStorage.getItem("usuario"));
+            const funcao = dados.usuario.funcao?.toUpperCase();
 
-            if (dados.usuario.funcao === "MOTORISTA") {
+            if (funcao === "MOTORISTA") {
                 window.location.href = "dashboard_motorista.html";
-            } else if (dados.usuario.funcao === "COORDENADOR") {
+            } else if (funcao === "COORDENADOR") {
                 window.location.href = "dashboard_coordenador.html";
             } else {
-                alert("Função não reconhecida!");
+                alert("Função não reconhecida: " + funcao);
             }
-        } else {
-            alert("Usuário ou senha inválidos!");
+
+        } catch (err) {
+            alert("Erro ao conectar ao servidor!");
+            console.error(err);
         }
-    } catch (err) {
-        alert("Erro ao conectar ao servidor!");
-        console.error(err);
     }
-}
 
-// Registrar usuários
-async function registrar() {
-    const data = {
-        nome: document.getElementById("nome").value,
-        sobrenome: document.getElementById("sobrenome").value,
-        matricula: document.getElementById("matricula").value,
-        senha: document.getElementById("senha").value,
-        funcao: document.getElementById("funcao").value // MOTORISTA ou COORDENADOR
-    };
+    async function registrar() {
+        const data = {
+            nome: document.getElementById("nome").value,
+            sobrenome: document.getElementById("sobrenome").value,
+            matricula: document.getElementById("matricula").value,
+            senha: document.getElementById("senha").value,
+            funcao: document.getElementById("funcao").value
+        };
 
-    const response = await fetch(`${API_URL}/cadastrar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    });
+        try {
+            const response = await fetch(`${API_URL}/cadastrar`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
 
-    if (response.ok) {
-        alert("Usuário registrado com sucesso!");
-        window.location.href = "index.html";
-    } else {
-        alert("Erro ao registrar usuário!");
+            if (response.ok) {
+                alert("Usuário registrado com sucesso!");
+                window.location.href = "index.html";
+            } else {
+                const erro = await response.text();
+                alert("Erro ao registrar: " + erro);
+            }
+        } catch (err) {
+            alert("Erro ao conectar ao servidor!");
+            console.error(err);
+        }
     }
-}

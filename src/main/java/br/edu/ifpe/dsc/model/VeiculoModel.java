@@ -31,9 +31,19 @@ public class VeiculoModel {
         veiculoRepositorio.delete(veiculo);
     }
 
-    public Veiculo atualizar(Integer numero, Veiculo dados) {
-        return veiculoRepositorio.findByNumero(numero)
+    public Veiculo atualizar(Integer numeroOriginal, Veiculo dados) {
+        return veiculoRepositorio.findByNumero(numeroOriginal)
             .map(veiculo -> {
+
+                if (dados.getNumero() != 0 && dados.getNumero() != numeroOriginal) {
+                    if (veiculoRepositorio.existsByNumero(dados.getNumero())) {
+                        throw new IllegalArgumentException(
+                            "Já existe um veículo com o número " + dados.getNumero()
+                        );
+                    }
+                    veiculo.setNumero(dados.getNumero());
+                }
+
                 if (dados.getPlaca() != null && !dados.getPlaca().isBlank()) {
                     veiculo.setPlaca(dados.getPlaca());
                 }
@@ -43,6 +53,7 @@ public class VeiculoModel {
                 if (dados.getTipo() != null) {
                     veiculo.setTipo(dados.getTipo());
                 }
+
                 return veiculoRepositorio.save(veiculo);
             })
             .orElse(null);

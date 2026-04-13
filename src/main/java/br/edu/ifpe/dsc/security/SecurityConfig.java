@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
 import br.edu.ifpe.dsc.model.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,20 +21,44 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // público → registrar e login
-                .requestMatchers("/api/usuario/cadastrar").permitAll()
 
-                // Motorista pode apenas visualizar lista de usuários
-                .requestMatchers("/api/usuario/listar").hasAnyRole("MOTORISTA", "COORDENADOR")
+                // PÚBLICO — login e cadastro
+                .requestMatchers(
+                        "/api/usuario/cadastrar",
+                        "/api/usuario/login"
+                ).permitAll()
 
-                // Coordenador pode manipular veículos e usuários
-                .requestMatchers("/api/veiculo/**").hasRole("COORDENADOR")
-                .requestMatchers("/api/usuario/atualizar/**", "/api/usuario/deletar/**").hasRole("COORDENADOR")
+                // CHECKLIST — motorista e coordenador
+                .requestMatchers("/api/checklist/**")
+                        .hasAnyRole("MOTORISTA", "COORDENADOR")
 
-                // qualquer outra rota precisa estar logado
+                // LISTAR USUÁRIOS — motorista e coordenador
+                .requestMatchers("/api/usuario/listar")
+                        .hasAnyRole("MOTORISTA", "COORDENADOR")
+
+                // LISTAR VEÍCULOS — motorista e coordenador
+                // (necessário para popular o select no checklist)
+                .requestMatchers("/api/veiculo/listar")
+                        .hasAnyRole("MOTORISTA", "COORDENADOR")
+
+                // GERENCIAR VEÍCULOS (cadastrar/editar/deletar) — só coordenador
+                .requestMatchers(
+                        "/api/veiculo/cadastrar",
+                        "/api/veiculo/atualizar/**",
+                        "/api/veiculo/deletar/**",
+                        "/api/veiculo/buscar/**"
+                ).hasRole("COORDENADOR")
+
+                // GERENCIAR USUÁRIOS — só coordenador
+                .requestMatchers(
+                        "/api/usuario/atualizar/**",
+                        "/api/usuario/deletar/**",
+                        "/api/usuario/buscar/**"
+                ).hasRole("COORDENADOR")
+
                 .anyRequest().authenticated()
             )
-            .httpBasic(); // HABILITA autenticação Basic (necessário para fetch com Authorization)
+            .httpBasic();
 
         return http.build();
     }
@@ -47,9 +70,9 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 }

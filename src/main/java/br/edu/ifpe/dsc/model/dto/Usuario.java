@@ -1,6 +1,5 @@
 package br.edu.ifpe.dsc.model.dto;
 
-import java.util.UUID;
 import br.edu.ifpe.dsc.model.FuncaoUsuario;
 import jakarta.persistence.*;
 
@@ -9,8 +8,8 @@ import jakarta.persistence.*;
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String matricula;
@@ -40,12 +39,8 @@ public class Usuario {
         this.funcao = funcao;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public String getMatricula() {

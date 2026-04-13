@@ -17,6 +17,7 @@ public class VeiculoControlador {
     @Autowired
     private VeiculoModel veiculoModel;
 
+    // POST - CADASTRAR
     @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrar(@RequestBody Veiculo veiculo) {
         try {
@@ -27,22 +28,24 @@ public class VeiculoControlador {
         }
     }
 
-    //GET - LISTAR TODOS VEÍCULOS
+    // GET - LISTAR TODOS
     @GetMapping("/listar")
     public List<Veiculo> listar() {
         return veiculoModel.listarTodos();
     }
 
-    //GET - BUSCAR COM NÚMERO DE VEÍCULO
+    // GET - BUSCAR POR NUMERO
     @GetMapping("/buscar/{numero}")
-    public ResponseEntity<Veiculo> buscarPorNumero(@PathVariable Integer numero) {
+    public ResponseEntity<Veiculo> buscarPorNumero(@PathVariable int numero) {
         Optional<Veiculo> veiculo = veiculoModel.buscarPorNumero(numero);
-        return veiculo.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return veiculo.map(ResponseEntity::ok)
+                      .orElse(ResponseEntity.notFound().build());
     }
 
-    //PUT - ATUALIZAR DADOS COM NÚMERO DO VEÍCULO
+    // PUT - ATUALIZAR POR NUMERO
     @PutMapping("/atualizar/{numero}")
-    public ResponseEntity<?> atualizar(@PathVariable Integer numero, @RequestBody Veiculo dados) {
+    public ResponseEntity<?> atualizar(@PathVariable int numero,
+                                       @RequestBody Veiculo dados) {
         try {
             Veiculo atualizado = veiculoModel.atualizar(numero, dados);
             if (atualizado == null) {
@@ -54,14 +57,16 @@ public class VeiculoControlador {
         }
     }
 
-    //DELETE - DELETAR VEÍCULO COM NÚMERO
-   @DeleteMapping("/deletar/{numero}")
+    // DELETE - POR NUMERO
+    @DeleteMapping("/deletar/{numero}")
     public ResponseEntity<Void> deletar(@PathVariable int numero) {
         Optional<Veiculo> veiculo = veiculoModel.buscarPorNumero(numero);
+
         if (veiculo.isPresent()) {
             veiculoModel.deletarVeiculo(veiculo.get());
             return ResponseEntity.noContent().build();
         }
+
         return ResponseEntity.notFound().build();
     }
 }

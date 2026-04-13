@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import br.edu.ifpe.dsc.model.UsuarioModel;
@@ -20,6 +20,9 @@ public class UsuarioControlador {
 
     @Autowired
     private UsuarioModel usuarioModel;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // POST - CADASTRAR
     @PostMapping("/cadastrar")
@@ -38,30 +41,36 @@ public class UsuarioControlador {
         return usuarioModel.listarUsuarios();
     }
 
-    // GET - BUSCAR COM MATRICULA
+    // GET - BUSCAR POR MATRICULA
     @GetMapping("/buscar/{matricula}")
     public ResponseEntity<Usuario> buscarPorMatricula(@PathVariable String matricula) {
         Optional<Usuario> usuario = usuarioModel.buscarPorMatricula(matricula);
-        return usuario.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return usuario.map(ResponseEntity::ok)
+                      .orElse(ResponseEntity.notFound().build());
     }
 
-    // PUT - ATUALIZAR COM MATRICULA
+    // PUT - ATUALIZAR
     @PutMapping("/atualizar/{matricula}")
-    public ResponseEntity<Usuario> atualizar(@PathVariable String matricula, @RequestBody Usuario dados) {
+    public ResponseEntity<?> atualizar(@PathVariable String matricula,
+                                       @RequestBody Usuario dados) {
         try {
             Usuario atualizado = usuarioModel.atualizarUsuario(matricula, dados);
+
             if (atualizado == null) {
                 return ResponseEntity.notFound().build();
             }
+
             return ResponseEntity.ok(atualizado);
+
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // DELETE - DELETAR COM MATRICULA
+    // DELETE
     @DeleteMapping("/deletar/{matricula}")
     public ResponseEntity<Void> deletar(@PathVariable String matricula) {
+
         Optional<Usuario> usuario = usuarioModel.buscarPorMatricula(matricula);
 
         if (usuario.isPresent()) {
@@ -72,28 +81,38 @@ public class UsuarioControlador {
         return ResponseEntity.notFound().build();
     }
 
-    // POST - LOGIN
+    //  POST - LOGIN
     @PostMapping("/login")
-public ResponseEntity<?> login(@RequestBody Usuario credenciais) {
-    Optional<Usuario> usuarioOpt = usuarioModel.buscarPorMatricula(credenciais.getMatricula());
+    public ResponseEntity<?> login(@RequestBody Usuario credenciais) {
 
-    if (usuarioOpt.isEmpty()) {
-        return ResponseEntity.status(401).body("Matrícula não encontrada");
-    }
+        Optional<Usuario> usuarioOpt =
+                usuarioModel.buscarPorMatricula(credenciais.getMatricula());
 
-    Usuario usuario = usuarioOpt.get();
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.status(401)
+                    .body("Matrícula não encontrada");
+        }
 
-    if (!new BCryptPasswordEncoder().matches(credenciais.getSenha(), usuario.getSenha())) {
-        return ResponseEntity.status(401).body("Senha incorreta");
-    }
+        Usuario usuario = usuarioOpt.get();
 
-    String authHeader = "Basic " + Base64.getEncoder()
-            .encodeToString((credenciais.getMatricula() + ":" + credenciais.getSenha()).getBytes());
+        if (!passwordEncoder.matches(
+                credenciais.getSenha(),
+                usuario.getSenha())) {
 
-    Map<String, Object> resposta = new HashMap<>();
-    resposta.put("usuario", usuario);
-    resposta.put("authHeader", authHeader);
+            return ResponseEntity.status(401)
+                    .body("Senha incorreta");
+        }
 
-    return ResponseEntity.ok(resposta);
+        String authHeader = "Basic " + Base64.getEncoder()
+                .encodeToString(
+                        (credenciais.getMatricula() + ":" +
+                         credenciais.getSenha()).getBytes()
+                );
+
+        Map<String, Object> resposta = new HashMap<>();
+        resposta.put("usuario", usuario);
+        resposta.put("authHeader", authHeader);
+
+        return ResponseEntity.ok(resposta);
     }
 }

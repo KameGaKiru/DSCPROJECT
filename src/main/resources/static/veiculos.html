@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Veículos - Registro</title>
+</head>
+<body>
+  <h2>Gerenciamento de Veículos</h2>
+
+  <form id="veiculoForm">
+    <input type="hidden" id="veiculoId">
+    <label>Modelo:</label>
+    <input type="text" id="modelo"><br>
+    <label>Placa:</label>
+    <input type="text" id="placa"><br>
+    <label>Ano:</label>
+    <input type="number" id="ano"><br>
+    <button type="submit">Salvar</button>
+  </form>
+
+  <h3>Lista de Veículos</h3>
+  <table border="1" id="veiculosTable">
+    <thead>
+      <tr>
+        <th>ID</th><th>Modelo</th><th>Placa</th><th>Ano</th><th>Ações</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <a href="usuarios.html">Ir para Usuários</a>
+  <script src="js/veiculos.js"></script>
+</body>
+</html>

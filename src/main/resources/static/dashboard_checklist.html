@@ -10,7 +10,6 @@
 
 <div class="container mt-4">
 
-  <!-- Cabeçalho -->
   <div class="d-flex align-items-center mb-4 gap-2">
     <h4 class="mb-0 fw-bold">🚌 Checklist do Veículo</h4>
     <div class="ms-auto d-flex gap-2">
@@ -24,7 +23,6 @@
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-dark text-white fw-semibold">📋 Novo Checklist</div>
     <div class="card-body">
-
       <div class="row g-3 mb-3">
         <div class="col-md-4">
           <label class="form-label fw-semibold">Tipo</label>
@@ -33,14 +31,12 @@
             <option value="SAIDA">🟠 Saída</option>
           </select>
         </div>
-
         <div class="col-md-4">
           <label class="form-label fw-semibold">Veículo</label>
           <select id="veiculoSelect" class="form-select">
             <option value="">Carregando veículos...</option>
           </select>
         </div>
-
         <div class="col-md-4">
           <label class="form-label fw-semibold">KM Atual</label>
           <input type="number" id="km" class="form-control" placeholder="Ex: 12500" min="0">
@@ -49,48 +45,34 @@
 
       <label class="form-label fw-semibold">Itens de Verificação</label>
       <div class="row row-cols-2 row-cols-md-4 g-2 mb-3">
-        <div class="col">
-          <div class="form-check border rounded p-2">
-            <input class="form-check-input" type="checkbox" id="faroisDianteiros">
-            <label class="form-check-label" for="faroisDianteiros">Faróis Dianteiros</label>
-          </div>
-        </div>
-        <div class="col">
-          <div class="form-check border rounded p-2">
-            <input class="form-check-input" type="checkbox" id="setasDianteiras">
-            <label class="form-check-label" for="setasDianteiras">Setas Dianteiras</label>
-          </div>
-        </div>
-        <div class="col">
-          <div class="form-check border rounded p-2">
-            <input class="form-check-input" type="checkbox" id="faroisTraseiros">
-            <label class="form-check-label" for="faroisTraseiros">Faróis Traseiros</label>
-          </div>
-        </div>
-        <div class="col">
-          <div class="form-check border rounded p-2">
-            <input class="form-check-input" type="checkbox" id="setasTraseiras">
-            <label class="form-check-label" for="setasTraseiras">Setas Traseiras</label>
-          </div>
-        </div>
-        <div class="col">
-          <div class="form-check border rounded p-2">
-            <input class="form-check-input" type="checkbox" id="luzesFreio">
-            <label class="form-check-label" for="luzesFreio">Luzes de Freio</label>
-          </div>
-        </div>
-        <div class="col">
-          <div class="form-check border rounded p-2">
-            <input class="form-check-input" type="checkbox" id="nivelOleo">
-            <label class="form-check-label" for="nivelOleo">Nível de Óleo</label>
-          </div>
-        </div>
-        <div class="col">
-          <div class="form-check border rounded p-2">
-            <input class="form-check-input" type="checkbox" id="nivelAgua">
-            <label class="form-check-label" for="nivelAgua">Nível de Água</label>
-          </div>
-        </div>
+        <div class="col"><div class="form-check border rounded p-2">
+          <input class="form-check-input" type="checkbox" id="faroisDianteiros">
+          <label class="form-check-label" for="faroisDianteiros">Faróis Dianteiros</label>
+        </div></div>
+        <div class="col"><div class="form-check border rounded p-2">
+          <input class="form-check-input" type="checkbox" id="setasDianteiras">
+          <label class="form-check-label" for="setasDianteiras">Setas Dianteiras</label>
+        </div></div>
+        <div class="col"><div class="form-check border rounded p-2">
+          <input class="form-check-input" type="checkbox" id="faroisTraseiros">
+          <label class="form-check-label" for="faroisTraseiros">Faróis Traseiros</label>
+        </div></div>
+        <div class="col"><div class="form-check border rounded p-2">
+          <input class="form-check-input" type="checkbox" id="setasTraseiras">
+          <label class="form-check-label" for="setasTraseiras">Setas Traseiras</label>
+        </div></div>
+        <div class="col"><div class="form-check border rounded p-2">
+          <input class="form-check-input" type="checkbox" id="luzesFreio">
+          <label class="form-check-label" for="luzesFreio">Luzes de Freio</label>
+        </div></div>
+        <div class="col"><div class="form-check border rounded p-2">
+          <input class="form-check-input" type="checkbox" id="nivelOleo">
+          <label class="form-check-label" for="nivelOleo">Nível de Óleo</label>
+        </div></div>
+        <div class="col"><div class="form-check border rounded p-2">
+          <input class="form-check-input" type="checkbox" id="nivelAgua">
+          <label class="form-check-label" for="nivelAgua">Nível de Água</label>
+        </div></div>
       </div>
 
       <div class="mb-3">
@@ -102,11 +84,10 @@
       <button onclick="registrarChecklist()" class="btn btn-primary px-4">
         ✅ Salvar Checklist
       </button>
-
     </div>
   </div>
 
-  <!-- HISTÓRICO -->
+  <!-- HISTÓRICO — 7 colunas incluindo Solução -->
   <div class="card shadow-sm">
     <div class="card-header bg-dark text-white fw-semibold">🕓 Histórico de Checklists</div>
     <div class="card-body p-0">
@@ -119,11 +100,12 @@
               <th>Motorista</th>
               <th>KM</th>
               <th>Observações</th>
+              <th>Solução</th>
               <th>Data / Hora</th>
             </tr>
           </thead>
           <tbody id="checklistTable">
-            <tr><td colspan="6" class="text-center text-muted py-3">Carregando...</td></tr>
+            <tr><td colspan="7" class="text-center text-muted py-3">Carregando...</td></tr>
           </tbody>
         </table>
       </div>

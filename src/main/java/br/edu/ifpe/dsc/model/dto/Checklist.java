@@ -14,10 +14,7 @@ public class Checklist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String tipo;
-
-    @Column(nullable = false)
     private int km;
 
     private boolean faroisDianteiros;
@@ -31,16 +28,25 @@ public class Checklist {
     @Column(length = 1000)
     private String observacoes;
 
-    @Column(nullable = false, updatable = false)
+    @Column(length = 1000)
+    private String solucaoMecanico;
+
+    private LocalDateTime resolvidoEm; 
+
+    @ManyToOne
+    @JoinColumn(name = "mecanico_id")
+    @JsonIgnoreProperties({"senha", "checklists"})
+    private Usuario mecanico;
+
     private LocalDateTime criadoEm;
 
     @ManyToOne
-    @JoinColumn(name = "motorista_id", nullable = false)
+    @JoinColumn(name = "motorista_id")
     @JsonIgnoreProperties({"senha", "checklists"})
     private Usuario motorista;
 
     @ManyToOne
-    @JoinColumn(name = "veiculo_id", nullable = false)
+    @JoinColumn(name = "veiculo_id")
     @JsonIgnoreProperties({"checklists"})
     private Veiculo veiculo;
 
@@ -49,110 +55,54 @@ public class Checklist {
         this.criadoEm = LocalDateTime.now();
     }
 
-    public Long getId() { 
-        return id; 
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getTipo() { 
-        return tipo; 
-    }
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public void setTipo(String tipo) { 
-        this.tipo = tipo; 
-    }
+    public int getKm() { return km; }
+    public void setKm(int km) { this.km = km; }
 
-    public int getKm() { 
-        return km; 
-    }
+    public boolean isFaroisDianteiros() { return faroisDianteiros; }
+    public void setFaroisDianteiros(boolean v) { this.faroisDianteiros = v; }
 
-    public void setKm(int km) { 
-        this.km = km; 
-    }
+    public boolean isSetasDianteiras() { return setasDianteiras; }
+    public void setSetasDianteiras(boolean v) { this.setasDianteiras = v; }
 
-    public boolean isFaroisDianteiros() { 
-        return faroisDianteiros; 
-    }
+    public boolean isFaroisTraseiros() { return faroisTraseiros; }
+    public void setFaroisTraseiros(boolean v) { this.faroisTraseiros = v; }
 
-    public void setFaroisDianteiros(boolean faroisDianteiros) { 
-        this.faroisDianteiros = faroisDianteiros; 
-    }
+    public boolean isSetasTraseiras() { return setasTraseiras; }
+    public void setSetasTraseiras(boolean v) { this.setasTraseiras = v; }
 
-    public boolean isSetasDianteiras() { 
-        return setasDianteiras; 
-    }
+    public boolean isLuzesFreio() { return luzesFreio; }
+    public void setLuzesFreio(boolean v) { this.luzesFreio = v; }
 
-    public void setSetasDianteiras(boolean setasDianteiras) { 
-        this.setasDianteiras = setasDianteiras; 
-    }
+    public boolean isNivelOleo() { return nivelOleo; }
+    public void setNivelOleo(boolean v) { this.nivelOleo = v; }
 
-    public boolean isFaroisTraseiros() { 
-        return faroisTraseiros; 
-    }
+    public boolean isNivelAgua() { return nivelAgua; }
+    public void setNivelAgua(boolean v) { this.nivelAgua = v; }
 
-    public void setFaroisTraseiros(boolean faroisTraseiros) { 
-        this.faroisTraseiros = faroisTraseiros; 
-    }
+    public String getObservacoes() { return observacoes; }
+    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
 
-    public boolean isSetasTraseiras() { 
-        return setasTraseiras; 
-    }
-    public void setSetasTraseiras(boolean setasTraseiras) { 
-        this.setasTraseiras = setasTraseiras; 
-    }
+    public String getSolucaoMecanico() { return solucaoMecanico; }
+    public void setSolucaoMecanico(String solucaoMecanico) { this.solucaoMecanico = solucaoMecanico; }
 
-    public boolean isLuzesFreio() { 
-        return luzesFreio; 
+    public LocalDateTime getResolvidoEm() { return resolvidoEm; }
+    public void setResolvidoEm(LocalDateTime resolvidoEm) { this.resolvidoEm = resolvidoEm; }
 
-    }
+    public Usuario getMecanico() { return mecanico; }
+    public void setMecanico(Usuario mecanico) { this.mecanico = mecanico; }
 
-    public void setLuzesFreio(boolean luzesFreio) { 
-        this.luzesFreio = luzesFreio; 
-    }
+    public LocalDateTime getCriadoEm() { return criadoEm; }
+    public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
 
-    public boolean isNivelOleo() { 
-        return nivelOleo; 
-    }
+    public Usuario getMotorista() { return motorista; }
+    public void setMotorista(Usuario motorista) { this.motorista = motorista; }
 
-    public void setNivelOleo(boolean nivelOleo) { 
-        this.nivelOleo = nivelOleo; 
-    }
-
-    public boolean isNivelAgua() { 
-        return nivelAgua; 
-    }
-    public void setNivelAgua(boolean nivelAgua) { 
-        this.nivelAgua = nivelAgua; 
-    }
-
-    public String getObservacoes() { 
-        return observacoes; 
-    }
-
-    public void setObservacoes(String observacoes) { 
-        this.observacoes = observacoes; 
-    }
-
-    public LocalDateTime getCriadoEm() { 
-        return criadoEm; 
-    }
-
-    public void setCriadoEm(LocalDateTime criadoEm) { 
-        this.criadoEm = criadoEm; 
-    }
-
-    public Usuario getMotorista() { 
-        return motorista; 
-    }
-
-    public void setMotorista(Usuario motorista) { 
-        this.motorista = motorista; 
-    }
-
-    public Veiculo getVeiculo() { 
-        return veiculo; 
-    }
-
-    public void setVeiculo(Veiculo veiculo) { 
-        this.veiculo = veiculo; 
-    }
+    public Veiculo getVeiculo() { return veiculo; }
+    public void setVeiculo(Veiculo veiculo) { this.veiculo = veiculo; }
 }

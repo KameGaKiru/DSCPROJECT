@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — Mecânico</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+
+    .topbar {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .topbar h1 { font-size: 1.1rem; margin: 0; font-weight: 600; }
+    .topbar .actions { display: flex; gap: 8px; margin-left: auto; }
+
+    .stat-card {
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: #fff;
+    }
+    .stat-icon {
+      font-size: 2rem;
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-icon.blue   { background: #e8f0fe; }
+    .stat-icon.green  { background: #e6f9f0; }
+    .stat-icon.orange { background: #fff3e0; }
+    .stat-label { font-size: .78rem; color: #6c757d; text-transform: uppercase; letter-spacing: .05em; }
+    .stat-value { font-size: 1.9rem; font-weight: 700; color: #1a1a2e; line-height: 1.1; }
+
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      margin-bottom: 24px;
+    }
+    .card-header-bar {
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 12px 12px 0 0;
+      padding: 13px 20px;
+      font-weight: 600;
+      font-size: .95rem;
+    }
+    .table th { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; }
+    .table td { font-size: .88rem; vertical-align: middle; }
+
+    /* Linha com problema e sem solução = fundo vermelho suave */
+    .table-danger td { background-color: #fff0f0 !important; }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <span style="font-size:1.5rem">🔧</span>
+  <h1>Dashboard — Mecânico</h1>
+  <div class="actions">
+    <button id="logoutBtn" class="btn btn-danger btn-sm">Sair</button>
+  </div>
+</div>
+
+<div class="container pb-5">
+
+  <!-- CARDS -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-icon blue">📋</div>
+        <div>
+          <div class="stat-label">Total de Checklists</div>
+          <div class="stat-value" id="totalChecklists">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div>
+          <div class="stat-label">Resolvidos</div>
+          <div class="stat-value" id="checklistsResolvidos">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div class="stat-icon orange">⚠️</div>
+        <div>
+          <div class="stat-label">Pendentes</div>
+          <div class="stat-value" id="checklistsPendentes">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABELA DE CHECKLISTS -->
+  <div class="card">
+    <div class="card-header-bar">📋 Checklists Registrados</div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>Tipo</th>
+              <th>Veículo</th>
+              <th>Motorista</th>
+              <th>KM</th>
+              <th>Itens / Observação</th>
+              <th>Solução</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="checklistTable">
+            <tr><td colspan="7" class="text-center text-muted py-4">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: CONFIRMAR / EDITAR SOLUÇÃO -->
+<div class="modal fade" id="modalSolucao" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title" id="modalSolucaoLabel">Confirmar Solução</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formSolucao">
+          <input type="hidden" id="checklistIdSolucao">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Descrição da Solução</label>
+            <textarea id="solucaoMecanico" class="form-control" rows="4"
+              placeholder="Descreva o que foi verificado e resolvido..."
+              required></textarea>
+            <div class="form-text">Esse texto ficará visível como "Solução" no histórico do checklist.</div>
+          </div>
+          <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-success px-4">✅ Confirmar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/mecanicos.js"></script>
+</body>
+</html>

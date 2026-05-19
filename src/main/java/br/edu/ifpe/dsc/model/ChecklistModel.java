@@ -1,5 +1,6 @@
 package br.edu.ifpe.dsc.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class ChecklistModel {
     @Autowired
     private VeiculoRepositorio veiculoRepositorio;
 
-    // SALVAR
+    // SALVAR (motorista)
     public Checklist salvarChecklist(String matricula, int numeroVeiculo, Checklist checklist) {
 
         Usuario motorista = usuarioRepositorio.findByMatricula(matricula)
@@ -46,23 +47,27 @@ public class ChecklistModel {
         return checklistRepositorio.findAllByOrderByCriadoEmDesc();
     }
 
-    // LISTAR POR MOTORISTA
-    public List<Checklist> listarPorMotorista(String matricula) {
-        Usuario motorista = usuarioRepositorio.findByMatricula(matricula)
-                .orElseThrow(() -> new IllegalArgumentException("Motorista não encontrado: " + matricula));
-        return checklistRepositorio.findByMotoristaOrderByCriadoEmDesc(motorista);
-    }
+    // REGISTRAR SOLUÇÃO (mecânico)
+    public Checklist registrarSolucao(Long checklistId, String matriculaMecanico, String solucao) {
 
-    // LISTAR POR VEÍCULO
-    public List<Checklist> listarPorVeiculo(int numeroVeiculo) {
-        Veiculo veiculo = veiculoRepositorio.findByNumero(numeroVeiculo)
-                .orElseThrow(() -> new IllegalArgumentException("Veículo não encontrado: " + numeroVeiculo));
-        return checklistRepositorio.findByVeiculoOrderByCriadoEmDesc(veiculo);
+        Checklist checklist = checklistRepositorio.findById(checklistId)
+                .orElseThrow(() -> new IllegalArgumentException("Checklist não encontrado: " + checklistId));
+
+        Usuario mecanico = usuarioRepositorio.findByMatricula(matriculaMecanico)
+                .orElseThrow(() -> new IllegalArgumentException("Mecânico não encontrado: " + matriculaMecanico));
+
+        if (solucao == null || solucao.isBlank())
+            throw new IllegalArgumentException("A descrição da solução é obrigatória.");
+
+        checklist.setSolucaoMecanico(solucao.trim());
+        checklist.setMecanico(mecanico);
+        checklist.setResolvidoEm(LocalDateTime.now());
+
+        return checklistRepositorio.save(checklist);
     }
 
     // VALIDAÇÃO
     private void validar(Checklist c) {
-
         if (c.getTipo() == null || c.getTipo().isBlank())
             throw new IllegalArgumentException("Tipo obrigatório (ENTRADA ou SAIDA)");
 

@@ -22,26 +22,31 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
 
-                // PÚBLICO — login e cadastro
+                // ── PÚBLICO ─────────────────────────────────────────
                 .requestMatchers(
                         "/api/usuario/cadastrar",
                         "/api/usuario/login"
                 ).permitAll()
 
-                // CHECKLIST — motorista e coordenador
-                .requestMatchers("/api/checklist/**")
-                        .hasAnyRole("MOTORISTA", "COORDENADOR")
+                // ── CHECKLIST: cadastrar e listar → motorista + coordenador + mecânico
+                .requestMatchers(
+                        "/api/checklist/listar",
+                        "/api/checklist/cadastrar/**"
+                ).hasAnyRole("MOTORISTA", "COORDENADOR", "MECANICO")
 
-                // LISTAR USUÁRIOS — motorista e coordenador
+                // ── CHECKLIST: registrar solução → só mecânico
+                .requestMatchers("/api/checklist/solucao/**")
+                        .hasAnyRole("MECANICO", "COORDENADOR")
+
+                // ── USUÁRIOS: listar → motorista + coordenador + mecânico
                 .requestMatchers("/api/usuario/listar")
-                        .hasAnyRole("MOTORISTA", "COORDENADOR")
+                        .hasAnyRole("MOTORISTA", "COORDENADOR", "MECANICO")
 
-                // LISTAR VEÍCULOS — motorista e coordenador
-                // (necessário para popular o select no checklist)
+                // ── VEÍCULOS: listar → motorista + coordenador + mecânico
                 .requestMatchers("/api/veiculo/listar")
-                        .hasAnyRole("MOTORISTA", "COORDENADOR")
+                        .hasAnyRole("MOTORISTA", "COORDENADOR", "MECANICO")
 
-                // GERENCIAR VEÍCULOS (cadastrar/editar/deletar) — só coordenador
+                // ── VEÍCULOS: gerenciar → só coordenador
                 .requestMatchers(
                         "/api/veiculo/cadastrar",
                         "/api/veiculo/atualizar/**",
@@ -49,7 +54,7 @@ public class SecurityConfig {
                         "/api/veiculo/buscar/**"
                 ).hasRole("COORDENADOR")
 
-                // GERENCIAR USUÁRIOS — só coordenador
+                // ── USUÁRIOS: gerenciar → só coordenador
                 .requestMatchers(
                         "/api/usuario/atualizar/**",
                         "/api/usuario/deletar/**",

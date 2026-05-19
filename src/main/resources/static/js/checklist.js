@@ -48,7 +48,7 @@ async function listarVeiculos() {
         select.innerHTML = "<option value=''>-- Selecione o veículo --</option>";
         veiculos.forEach(v => {
             const opt = document.createElement("option");
-            opt.value       = v.numero;
+            opt.value = v.numero;
             opt.textContent = `Nº ${v.numero} — ${v.placa} (${v.marca})`;
             select.appendChild(opt);
         });
@@ -63,16 +63,10 @@ async function listarVeiculos() {
 async function registrarChecklist() {
 
     const numeroVeiculo = document.getElementById("veiculoSelect").value;
-    if (!numeroVeiculo) {
-        alert("Selecione um veículo!");
-        return;
-    }
+    if (!numeroVeiculo) { alert("Selecione um veículo!"); return; }
 
     const kmValor = parseInt(document.getElementById("km").value);
-    if (isNaN(kmValor) || kmValor < 0) {
-        alert("Informe um KM válido!");
-        return;
-    }
+    if (isNaN(kmValor) || kmValor < 0) { alert("Informe um KM válido!"); return; }
 
     const body = {
         tipo:             document.getElementById("tipo").value,
@@ -92,27 +86,22 @@ async function registrarChecklist() {
             `${CHECKLIST_API}/cadastrar/${usuario.matricula}/${numeroVeiculo}`,
             {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": authHeader
-                },
+                headers: { "Content-Type": "application/json", "Authorization": authHeader },
                 body: JSON.stringify(body)
             }
         );
 
         if (res.status === 401 || res.status === 403) {
-            alert("Sessão expirada!");
-            localStorage.clear();
-            window.location.href = "index.html";
-            return;
+            alert("Sessão expirada!"); localStorage.clear();
+            window.location.href = "index.html"; return;
         }
 
         if (res.ok) {
             alert("Checklist registrado com sucesso!");
-            document.getElementById("km").value           = "";
-            document.getElementById("observacoes").value  = "";
+            document.getElementById("km").value = "";
+            document.getElementById("observacoes").value = "";
             document.getElementById("veiculoSelect").value = "";
-            document.getElementById("tipo").value         = "ENTRADA";
+            document.getElementById("tipo").value = "ENTRADA";
             ["faroisDianteiros","setasDianteiras","faroisTraseiros",
              "setasTraseiras","luzesFreio","nivelOleo","nivelAgua"]
             .forEach(id => { document.getElementById(id).checked = false; });
@@ -124,14 +113,14 @@ async function registrarChecklist() {
 
     } catch (err) {
         alert("Erro ao conectar ao servidor!");
-        console.error("Erro ao registrar:", err);
+        console.error(err);
     }
 }
 
 // LISTAR CHECKLISTS
 async function listarChecklists() {
     const tbody = document.getElementById("checklistTable");
-    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Carregando...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Carregando...</td></tr>`;
 
     try {
         const res = await fetch(`${CHECKLIST_API}/listar`, {
@@ -139,59 +128,72 @@ async function listarChecklists() {
         });
 
         if (res.status === 401 || res.status === 403) {
-            alert("Sessão expirada!");
-            localStorage.clear();
-            window.location.href = "index.html";
-            return;
+            alert("Sessão expirada!"); localStorage.clear();
+            window.location.href = "index.html"; return;
         }
 
         if (!res.ok) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Erro ao carregar checklists.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Erro ao carregar.</td></tr>`;
             return;
         }
 
         const checklists = await res.json();
 
         if (!checklists || checklists.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Nenhum checklist registrado ainda.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Nenhum checklist registrado ainda.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = "";
         checklists.forEach(c => {
             const dataFormatada = c.criadoEm
-                ? new Date(c.criadoEm).toLocaleString("pt-BR")
-                : "-";
+                ? new Date(c.criadoEm).toLocaleString("pt-BR") : "-";
 
-            const badge = c.tipo === "ENTRADA" ? "bg-success" : "bg-warning text-dark";
+            const badge = c.tipo === "ENTRADA"
+                ? `<span class="badge bg-success">ENTRADA</span>`
+                : `<span class="badge bg-warning text-dark">SAÍDA</span>`;
 
             const nomeMotorista = c.motorista
-                ? `${c.motorista.nome} ${c.motorista.sobrenome ?? ""}`.trim()
-                : "-";
+                ? `${c.motorista.nome} ${c.motorista.sobrenome ?? ""}`.trim() : "-";
 
-            const observacoes = c.observacoes && c.observacoes.trim() !== ""
+            const observacoes = c.observacoes?.trim()
                 ? c.observacoes
-                : "<span class='text-muted fst-italic'>Sem observações</span>";
+                : `<span class='text-muted fst-italic'>Sem observações</span>`;
+
+            // Coluna Solução
+            let solucaoCell;
+            if (c.solucaoMecanico) {
+                const resolvidoEm = c.resolvidoEm
+                    ? new Date(c.resolvidoEm).toLocaleString("pt-BR") : "";
+                const nomeMec = c.mecanico
+                    ? `${c.mecanico.nome} ${c.mecanico.sobrenome ?? ""}`.trim() : "";
+                solucaoCell = `
+                    <span class="badge bg-success mb-1">✅ Resolvido</span><br>
+                    <small class="text-muted">${c.solucaoMecanico}</small><br>
+                    <small class="text-muted">${nomeMec} — ${resolvidoEm}</small>`;
+            } else {
+                solucaoCell = `<span class="text-muted fst-italic small">Aguardando mecânico</span>`;
+            }
 
             tbody.innerHTML += `
                 <tr>
-                    <td><span class="badge ${badge}">${c.tipo}</span></td>
+                    <td>${badge}</td>
                     <td>Nº ${c.veiculo?.numero ?? "?"} — ${c.veiculo?.placa ?? ""}</td>
                     <td>${nomeMotorista}</td>
                     <td>${c.km} km</td>
                     <td>${observacoes}</td>
+                    <td>${solucaoCell}</td>
                     <td>${dataFormatada}</td>
                 </tr>
             `;
         });
 
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Falha na conexão.</td></tr>`;
-        console.error("Erro ao listar checklists:", err);
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Falha na conexão.</td></tr>`;
+        console.error(err);
     }
 }
 
-// INIT
 document.addEventListener("DOMContentLoaded", () => {
     listarVeiculos();
     listarChecklists();

@@ -17,12 +17,24 @@
     <form id="loginForm">
       <div class="mb-3">
         <label for="matricula" class="form-label">Matrícula</label>
-        <input type="text" class="form-control" id="matricula" placeholder="Digite sua matrícula" required>
+        <input type="text"
+              class="form-control"
+              id="matricula"
+              inputmode="numeric"
+              maxlength="12"
+              placeholder="Somente números (máx. 12)"
+              required>
       </div>
 
       <div class="mb-3">
         <label for="senha" class="form-label">Senha</label>
-        <input type="password" class="form-control" id="senha" placeholder="Digite sua senha" required>
+        <input type="password"
+              class="form-control"
+              id="senha"
+              minlength="6"
+              maxlength="20"
+              placeholder="Entre 6 e 20 caracteres"
+              required>
       </div>
 
       <button type="submit" class="btn btn-primary w-100">Entrar</button>
@@ -43,6 +55,38 @@
 document.getElementById("loginForm").addEventListener("submit", function(e){
     e.preventDefault();
     login(); 
+});
+</script>
+
+<script>
+
+    document.getElementById("matricula").addEventListener("input", function () {
+      this.value = this.value.replace(/\D/g, "").slice(0, 12);
+    });
+
+    document.getElementById("senha").addEventListener("input", function () {
+    this.value = this.value.replace(/\s/g, "").slice(0, 20);
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", function(e){
+      e.preventDefault();
+
+      const matricula = document.getElementById("matricula").value.trim();
+      const senha = document.getElementById("senha").value.replace(/\s/g, "");
+
+      if (!/^\d+$/.test(matricula) || matricula.length > 12) {
+          alert("A matrícula deve conter apenas números (máximo 12 dígitos).");
+          document.getElementById("matricula").focus();
+          return;
+      }
+
+      if (senha.length < 6 || senha.length > 20) {
+          alert("A senha deve ter entre 6 e 20 caracteres.");
+          document.getElementById("senha").focus();
+          return;
+      }
+
+    login();
 });
 </script>
 

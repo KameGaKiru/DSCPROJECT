@@ -4,8 +4,8 @@ const USUARIO_API = "http://localhost:8080/api/usuario";
 async function login() {
 
     const matricula = document.getElementById("matricula").value.trim();
-    const senha     = document.getElementById("senha").value;
-
+    const senha = document.getElementById("senha").value.replace(/\s/g, "");
+    
     if (!matricula || !senha) {
         alert("Preencha matrícula e senha!");
         return;
@@ -24,7 +24,6 @@ async function login() {
         }
 
         const dados = await res.json();
-
         localStorage.setItem("authHeader", dados.authHeader);
         localStorage.setItem("usuario", JSON.stringify(dados.usuario));
 
@@ -46,22 +45,37 @@ async function login() {
     }
 }
 
-// REGISTRAR
+// REGISTRAR 
 async function registrar() {
 
-    const data = {
-        nome:      document.getElementById("nome").value.trim(),
-        sobrenome: document.getElementById("sobrenome").value.trim(),
-        matricula: document.getElementById("matricula").value.trim(),
-        senha:     document.getElementById("senha").value,
-        funcao:    document.getElementById("funcao").value
-    };
+    const matricula = document.getElementById("matricula").value.trim();
+    const nome      = document.getElementById("nome").value.replace(/\s/g, "").trim();
+    const sobrenome = document.getElementById("sobrenome").value.replace(/\s/g, "").trim();
+    const senha     = document.getElementById("senha").value.replace(/\s/g, "");
+    const funcao    = document.getElementById("funcao").value;
+
+    if (!/^\d+$/.test(matricula) || matricula.length > 12) {
+        alert("A matrícula deve conter apenas números (máximo 12 dígitos).");
+        return;
+    }
+    if (!nome || nome.length > 60) {
+        alert("O nome é obrigatório e deve ter no máximo 60 caracteres.");
+        return;
+    }
+    if (!sobrenome || sobrenome.length > 60) {
+        alert("O sobrenome é obrigatório e deve ter no máximo 60 caracteres.");
+        return;
+    }
+    if (senha.length < 6 || senha.length > 20) {
+        alert("A senha deve ter entre 6 e 20 caracteres.");
+        return;
+    }
 
     try {
         const res = await fetch(`${USUARIO_API}/cadastrar`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
+            body: JSON.stringify({ matricula, nome, sobrenome, senha, funcao })
         });
 
         if (res.ok) {

@@ -21,6 +21,14 @@ public class UsuarioModel {
 
     public Usuario salvarUsuario(Usuario usuario) {
         
+
+        // Verifica matrícula duplicada
+        if (usuarioRepositorio.existsByMatricula(usuario.getMatricula())) {
+            throw new IllegalArgumentException(
+                "Matrícula já registrada, insira uma matrícula diferente."
+            );
+        }
+
         // Email gerado automaticamente
         usuario.setEmail(gerarEmail(usuario.getNome(), usuario.getSobrenome(), usuario.getMatricula()));
 
@@ -29,6 +37,8 @@ public class UsuarioModel {
             String senhaCriptografada = passwordEncoder.encode(usuario.getSenha());
             usuario.setSenha(senhaCriptografada);
         }
+
+        
 
         return usuarioRepositorio.save(usuario);
     }

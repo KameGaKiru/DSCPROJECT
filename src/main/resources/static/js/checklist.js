@@ -63,10 +63,66 @@ async function listarVeiculos() {
 async function registrarChecklist() {
 
     const numeroVeiculo = document.getElementById("veiculoSelect").value;
-    if (!numeroVeiculo) { alert("Selecione um veículo!"); return; }
+    if (!numeroVeiculo) { alert("Selecione um veículo!"); 
+        return; 
+    }
 
     const kmValor = parseInt(document.getElementById("km").value);
-    if (isNaN(kmValor) || kmValor < 0) { alert("Informe um KM válido!"); return; }
+        if (isNaN(kmValor) || kmValor < 0) { alert("Informe um KM válido!"); 
+        return; 
+    }
+
+    // Validação das observações
+    const obsEl    = document.getElementById("observacoes");
+    const obsErro  = document.getElementById("observacoesErro");
+    const obsValor = obsEl.value;
+    const obsLimpo = obsValor.trim();
+
+    // Verifica se todos os itens estão marcados
+    const todosOk = ["faroisDianteiros","setasDianteiras","faroisTraseiros",
+                    "setasTraseiras","luzesFreio","nivelOleo","nivelAgua"]
+                    .every(id => document.getElementById(id).checked);
+
+    // Se algum item estiver desmarcado, observação é obrigatória
+    if (!todosOk) {
+
+        if (obsLimpo.length === 0) {
+            obsEl.classList.add("is-invalid");
+            obsErro.style.display = "block";
+            obsErro.textContent   = "Observação obrigatória quando algum item não foi verificado.";
+            obsEl.focus();
+            return;
+        }
+
+        if (!/[a-zA-ZÀ-ÿ]/.test(obsLimpo)) {
+            obsEl.classList.add("is-invalid");
+            obsErro.style.display = "block";
+            obsErro.textContent   = "A observação deve conter ao menos uma letra, não apenas números.";
+            obsEl.focus();
+            return;
+        }
+    }
+
+    // Se todos ok mas digitou algo, ainda valida o conteúdo digitado
+    if (todosOk && obsLimpo.length > 0 && !/[a-zA-ZÀ-ÿ]/.test(obsLimpo)) {
+        obsEl.classList.add("is-invalid");
+        obsErro.style.display = "block";
+        obsErro.textContent   = "A observação deve conter ao menos uma letra, não apenas números.";
+        obsEl.focus();
+        return;
+    }
+
+    if (obsLimpo.length > 400) {
+        obsEl.classList.add("is-invalid");
+        obsErro.style.display = "block";
+        obsErro.textContent   = "A observação não pode ultrapassar 400 caracteres.";
+        obsEl.focus();
+        return;
+    }
+
+    // Sem erro — limpa feedback
+    obsEl.classList.remove("is-invalid");
+    obsErro.style.display = "none";
 
     const body = {
         tipo:             document.getElementById("tipo").value,
@@ -78,7 +134,7 @@ async function registrarChecklist() {
         luzesFreio:       document.getElementById("luzesFreio").checked,
         nivelOleo:        document.getElementById("nivelOleo").checked,
         nivelAgua:        document.getElementById("nivelAgua").checked,
-        observacoes:      document.getElementById("observacoes").value.trim()
+        observacoes:      obsLimpo
     };
 
     try {
@@ -92,14 +148,17 @@ async function registrarChecklist() {
         );
 
         if (res.status === 401 || res.status === 403) {
-            alert("Sessão expirada!"); localStorage.clear();
-            window.location.href = "index.html"; return;
+            alert("Sessão expirada!");
+            localStorage.clear();
+            window.location.href = "index.html";
+            return;
         }
 
         if (res.ok) {
             alert("Checklist registrado com sucesso!");
             document.getElementById("km").value = "";
             document.getElementById("observacoes").value = "";
+            document.getElementById("contadorObservacoes").textContent = "0";
             document.getElementById("veiculoSelect").value = "";
             document.getElementById("tipo").value = "ENTRADA";
             ["faroisDianteiros","setasDianteiras","faroisTraseiros",
@@ -128,8 +187,10 @@ async function listarChecklists() {
         });
 
         if (res.status === 401 || res.status === 403) {
-            alert("Sessão expirada!"); localStorage.clear();
-            window.location.href = "index.html"; return;
+            alert("Sessão expirada!");
+            localStorage.clear();
+            window.location.href = "index.html";
+            return;
         }
 
         if (!res.ok) {
@@ -158,7 +219,7 @@ async function listarChecklists() {
 
             const observacoes = c.observacoes?.trim()
                 ? c.observacoes
-                : `<span class='text-muted fst-italic'>Sem observações</span>`;
+                : `<span class="text-muted fst-italic">Sem observações</span>`;
 
             // Coluna Solução
             let solucaoCell;

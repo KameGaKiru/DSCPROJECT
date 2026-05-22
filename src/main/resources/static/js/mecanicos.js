@@ -38,10 +38,16 @@ async function listarChecklists() {
 
         const checklists = await res.json();
 
-        // Contadores para os cards
-        const total     = checklists.length;
+        // Contadores para os cards (pendentes são os que tem checklist menor que 7 intens ok)
+        const total      = checklists.length;
         const resolvidos = checklists.filter(c => c.solucaoMecanico).length;
-        const pendentes  = total - resolvidos;
+        const pendentes  = checklists.filter(c => {
+            const itensOk = [
+                c.faroisDianteiros, c.setasDianteiras, c.faroisTraseiros,
+                c.setasTraseiras,   c.luzesFreio,      c.nivelOleo, c.nivelAgua
+            ].filter(Boolean).length;
+            return itensOk < 7;
+        }).length;
 
         document.getElementById("totalChecklists").textContent  = total;
         document.getElementById("checklistsResolvidos").textContent = resolvidos;
@@ -90,15 +96,18 @@ async function listarChecklists() {
             }
 
             // Botão confirmar solução 
-            const btnSolucao = c.solucaoMecanico
-                ? `<button class="btn btn-outline-success btn-sm"
-                        onclick="abrirModalSolucao(${c.id}, \`${(c.solucaoMecanico || "").replace(/`/g, "'")}\`)">
-                        ✏️ Editar
-                   </button>`
-                : `<button class="btn btn-warning btn-sm"
-                        onclick="abrirModalSolucao(${c.id}, '')">
-                        🔧 Confirmar Solução
-                   </button>`;
+            let btnSolucao = "";
+
+            if (temProblema) {
+                btnSolucao = c.solucaoMecanico
+                    ? `<button class="btn btn-outline-success btn-sm"
+                            onclick="abrirModalSolucao(${c.id}, \`${(c.solucaoMecanico || "").replace(/`/g, "'")}\`)">
+                             Editar
+                    </button>`
+                    : `<button class="btn btn-warning btn-sm"
+                            onclick="abrirModalSolucao(${c.id}, '')"> Confirmar Solução
+                    </button>`;
+            }
 
             tbody.innerHTML += `
                 <tr class="${c.solucaoMecanico ? '' : (temProblema ? 'table-danger' : '')}">
@@ -110,9 +119,8 @@ async function listarChecklists() {
                     <td>${solucaoCell}</td>
                     <td>
                         ${btnSolucao}
-                        <button class="btn btn-secondary btn-sm mt-1"
-                            onclick="irParaChat()">
-                            💬 Chat
+                        <button class="btn btn-secondary btn-sm ${temProblema ? 'mt-1' : ''}"
+                            onclick="irParaChat()"> Chat
                         </button>
                     </td>
                 </tr>
@@ -125,15 +133,25 @@ async function listarChecklists() {
     }
 }
 
-// MODAL DE SOLUÇÃO
-function abrirModalSolucao(checklistId, solucaoAtual) {
-    document.getElementById("checklistIdSolucao").value    = checklistId;
-    document.getElementById("solucaoMecanico").value       = solucaoAtual;
-    document.getElementById("modalSolucaoLabel").textContent =
-        solucaoAtual ? "Editar Solução" : "Confirmar Solução";
+        // MODAL DE SOLUÇÃO
+        function abrirModalSolucao(checklistId, solucaoAtual) {
+            document.getElementById("checklistIdSolucao").value = checklistId;
+            document.getElementById("solucaoMecanico").value    = solucaoAtual;
+            document.getElementById("modalSolucaoLabel").textContent =
+                solucaoAtual ? "Editar Solução" : "Confirmar Solução";
 
-    new bootstrap.Modal(document.getElementById("modalSolucao")).show();
-}
+            // Atualiza o contador ao abrir o modal
+            const textarea  = document.getElementById("solucaoMecanico");
+            const contador  = document.getElementById("contadorSolucao");
+            contador.textContent = solucaoAtual.length;
+
+            // Listener para atualizar em tempo real
+            textarea.oninput = () => {
+                contador.textContent = textarea.value.length;
+            };
+
+            new bootstrap.Modal(document.getElementById("modalSolucao")).show();
+        }
 
 // SALVAR SOLUÇÃO
 // PUT /api/checklist/solucao/{id}/{matriculaMecanico}
@@ -143,10 +161,17 @@ document.getElementById("formSolucao").addEventListener("submit", async function
     const id      = document.getElementById("checklistIdSolucao").value;
     const solucao = document.getElementById("solucaoMecanico").value.trim();
 
-    if (!solucao) {
-        alert("Descreva a solução antes de confirmar!");
-        return;
-    }
+        // Deve estar preenchido
+        if (!solucao) {
+            alert("Descreva a solução antes de confirmar!");
+            return;
+        }
+
+        // Deve conter ao menos uma letra
+        if (!/[a-zA-ZÀ-ÿ]/.test(solucao)) {
+            alert("A solução deve conter ao menos uma letra, não apenas números.");
+            return;
+        }
 
     try {
         const res = await fetch(

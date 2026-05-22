@@ -151,9 +151,13 @@
             <label class="form-label fw-semibold">Descrição da Solução</label>
             <textarea id="solucaoMecanico" class="form-control" rows="4"
               placeholder="Descreva o que foi verificado e resolvido..."
+              maxlength="400"
               required></textarea>
-            <div class="form-text">Esse texto ficará visível como "Solução" no histórico do checklist.</div>
-          </div>
+            <div class="d-flex justify-content-between">
+              <div class="form-text"></div>
+              <small class="text-muted mt-1"><span id="contadorSolucao">0</span>/400</small>
+            </div>
+           </div>
           <div class="d-flex gap-2 justify-content-end">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             <button type="submit" class="btn btn-success px-4">✅ Confirmar</button>

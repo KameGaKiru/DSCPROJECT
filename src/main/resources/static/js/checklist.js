@@ -16,6 +16,17 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
     window.location.href = "index.html";
 });
 
+let checklistsCarregados = [];
+
+function obterUltimoKm(numeroVeiculo) {
+    const doVeiculo = checklistsCarregados.filter(
+        c => String(c.veiculo?.numero) === String(numeroVeiculo)
+    );
+    if (doVeiculo.length === 0) return null;
+    return doVeiculo[0].km; 
+}
+
+
 // LISTAR VEÍCULOS NO SELECT
 async function listarVeiculos() {
     const select = document.getElementById("veiculoSelect");
@@ -63,13 +74,60 @@ async function listarVeiculos() {
 async function registrarChecklist() {
 
     const numeroVeiculo = document.getElementById("veiculoSelect").value;
-    if (!numeroVeiculo) { alert("Selecione um veículo!"); 
-        return; 
+    const tipoAtual = document.getElementById("tipo").value;
+    const ultimoChecklist = obterUltimoChecklist(numeroVeiculo);
+
+    if (ultimoChecklist) {
+
+        const ultimoTipo = ultimoChecklist.tipo?.toUpperCase();
+
+    // Não permite dois iguais seguidos
+    if (ultimoTipo === tipoAtual) {
+
+    const proximoTipoEsperado =
+        ultimoTipo === "ENTRADA" ? "SAÍDA" : "ENTRADA";
+
+    alert(
+        `O último checklist deste veículo foi do tipo ${ultimoTipo}.\n` +
+        `O próximo deve ser do tipo ${proximoTipoEsperado}.`
+        );
+
+        return;
+        }
+        
     }
 
-    const kmValor = parseInt(document.getElementById("km").value);
-        if (isNaN(kmValor) || kmValor < 0) { alert("Informe um KM válido!"); 
-        return; 
+    if (!numeroVeiculo) { alert("Selecione um veículo!"); return; }
+
+    const kmInput = document.getElementById("km").value
+    .replace(",", ".")
+    .trim();
+
+    const kmValor = parseFloat(kmInput);
+
+    if (isNaN(kmValor) || kmValor <= 0) {
+        alert("Informe um KM válido!");
+        return;
+    }
+
+    // Valida KM contra o último registrado para este veículo
+    const ultimoKm = obterUltimoKm(numeroVeiculo);
+    function obterUltimoChecklist(numeroVeiculo) {
+
+    const doVeiculo = checklistsCarregados.filter(
+        c => String(c.veiculo?.numero) === String(numeroVeiculo)
+    );
+
+    if (doVeiculo.length === 0) {
+        return null;
+    }
+
+        return doVeiculo[0];
+    }
+
+    if (ultimoKm !== null && kmValor <= ultimoKm) {
+        alert(`O KM atual (${kmValor}) deve ser superior ao último registrado (${ultimoKm} km).`);
+        return;
     }
 
     // Validação das observações
@@ -78,14 +136,11 @@ async function registrarChecklist() {
     const obsValor = obsEl.value;
     const obsLimpo = obsValor.trim();
 
-    // Verifica se todos os itens estão marcados
     const todosOk = ["faroisDianteiros","setasDianteiras","faroisTraseiros",
-                    "setasTraseiras","luzesFreio","nivelOleo","nivelAgua"]
+                     "setasTraseiras","luzesFreio","nivelOleo","nivelAgua"]
                     .every(id => document.getElementById(id).checked);
 
-    // Se algum item estiver desmarcado, observação é obrigatória
     if (!todosOk) {
-
         if (obsLimpo.length === 0) {
             obsEl.classList.add("is-invalid");
             obsErro.style.display = "block";
@@ -93,7 +148,6 @@ async function registrarChecklist() {
             obsEl.focus();
             return;
         }
-
         if (!/[a-zA-ZÀ-ÿ]/.test(obsLimpo)) {
             obsEl.classList.add("is-invalid");
             obsErro.style.display = "block";
@@ -103,7 +157,6 @@ async function registrarChecklist() {
         }
     }
 
-    // Se todos ok mas digitou algo, ainda valida o conteúdo digitado
     if (todosOk && obsLimpo.length > 0 && !/[a-zA-ZÀ-ÿ]/.test(obsLimpo)) {
         obsEl.classList.add("is-invalid");
         obsErro.style.display = "block";
@@ -120,7 +173,6 @@ async function registrarChecklist() {
         return;
     }
 
-    // Sem erro — limpa feedback
     obsEl.classList.remove("is-invalid");
     obsErro.style.display = "none";
 
@@ -199,6 +251,7 @@ async function listarChecklists() {
         }
 
         const checklists = await res.json();
+        checklistsCarregados = checklists; 
 
         if (!checklists || checklists.length === 0) {
             tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Nenhum checklist registrado ainda.</td></tr>`;
@@ -221,7 +274,6 @@ async function listarChecklists() {
                 ? c.observacoes
                 : `<span class="text-muted fst-italic">Sem observações</span>`;
 
-            // Coluna Solução
             let solucaoCell;
             if (c.solucaoMecanico) {
                 const resolvidoEm = c.resolvidoEm

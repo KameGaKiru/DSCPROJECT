@@ -15,7 +15,7 @@ public class Checklist {
     private Long id;
 
     private String tipo;
-    private int km;
+    private double km;
 
     private boolean faroisDianteiros;
     private boolean setasDianteiras;
@@ -61,8 +61,8 @@ public class Checklist {
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
-    public int getKm() { return km; }
-    public void setKm(int km) { this.km = km; }
+    public double getKm() { return km; }
+    public void setKm(double km) { this.km = km; }
 
     public boolean isFaroisDianteiros() { return faroisDianteiros; }
     public void setFaroisDianteiros(boolean v) { this.faroisDianteiros = v; }

@@ -1,9 +1,7 @@
 package br.edu.ifpe.dsc.model.dto;
 
 import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import jakarta.persistence.*;
 
 @Entity
@@ -31,7 +29,7 @@ public class Checklist {
     @Column(length = 1000)
     private String solucaoMecanico;
 
-    private LocalDateTime resolvidoEm; 
+    private LocalDateTime resolvidoEm;
 
     @ManyToOne
     @JoinColumn(name = "mecanico_id")
@@ -46,7 +44,7 @@ public class Checklist {
     private Usuario motorista;
 
     @ManyToOne
-    @JoinColumn(name = "veiculo_id")
+    @JoinColumn(name = "veiculo_id", nullable = true)
     @JsonIgnoreProperties({"checklists"})
     private Veiculo veiculo;
 
@@ -86,19 +84,19 @@ public class Checklist {
     public void setNivelAgua(boolean v) { this.nivelAgua = v; }
 
     public String getObservacoes() { return observacoes; }
-    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
+    public void setObservacoes(String o) { this.observacoes = o; }
 
     public String getSolucaoMecanico() { return solucaoMecanico; }
-    public void setSolucaoMecanico(String solucaoMecanico) { this.solucaoMecanico = solucaoMecanico; }
+    public void setSolucaoMecanico(String s) { this.solucaoMecanico = s; }
 
     public LocalDateTime getResolvidoEm() { return resolvidoEm; }
-    public void setResolvidoEm(LocalDateTime resolvidoEm) { this.resolvidoEm = resolvidoEm; }
+    public void setResolvidoEm(LocalDateTime r) { this.resolvidoEm = r; }
 
     public Usuario getMecanico() { return mecanico; }
     public void setMecanico(Usuario mecanico) { this.mecanico = mecanico; }
 
     public LocalDateTime getCriadoEm() { return criadoEm; }
-    public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }
+    public void setCriadoEm(LocalDateTime c) { this.criadoEm = c; }
 
     public Usuario getMotorista() { return motorista; }
     public void setMotorista(Usuario motorista) { this.motorista = motorista; }

@@ -3,26 +3,41 @@ package br.edu.ifpe.dsc.model.dto;
 import br.edu.ifpe.dsc.model.MarcaVeiculo;
 import br.edu.ifpe.dsc.model.TipoVeiculo;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 
 @Entity
 @Table(name = "veiculos")
 public class Veiculo {
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-@Column(unique = true, nullable = false)
-private int numero;
+    @Positive(message = "O número do veículo deve ser positivo.")
+    @Column(unique = true, nullable = false)
+    private int numero;
+    @Max(value = 9999999999L,
+     message = "O número do veículo deve ter no máximo 10 dígitos.")
+    @Positive(message = "O número do veículo deve ser positivo.")
 
-@Column(unique = true, nullable = false)
-private String placa;
+    @NotNull(message = "A placa é obrigatória.")
+    @Pattern(
+        regexp = "^[A-Z]{3}-([0-9]{4}|[0-9][A-Z][0-9]{2})$",
+        message = "Placa inválida. Utilize AAA-1234 ou AAA-1A23."
+    )
+    @Column(unique = true, nullable = false)
+    private String placa;
 
-@Enumerated(EnumType.STRING)
-private MarcaVeiculo marca;
+    @NotNull(message = "A marca é obrigatória.")
+    @Enumerated(EnumType.STRING)
+    private MarcaVeiculo marca;
 
-@Enumerated(EnumType.STRING)
-private TipoVeiculo tipo;
+    @NotNull(message = "O tipo é obrigatório.")
+    @Enumerated(EnumType.STRING)
+    private TipoVeiculo tipo;
 
 public Veiculo() {}
 

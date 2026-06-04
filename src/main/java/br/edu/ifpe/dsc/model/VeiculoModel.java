@@ -20,13 +20,8 @@ public class VeiculoModel {
     @Autowired
     private ChecklistRepositorio checklistRepositorio;
 
-    // REGEX DE MODELO DE PLACA
-    private static final String PLACA_REGEX =
-            "^[A-Z]{3}-([0-9]{4}|[0-9][A-Z][0-9]{2})$";
-
-    // CADASTRAR
+        // CADASTRAR
     public Veiculo salvar(Veiculo veiculo) {
-        validarVeiculo(veiculo);
 
         if (veiculoRepositorio.existsByNumero(veiculo.getNumero())) {
             throw new IllegalArgumentException("Número do veículo já cadastrado.");
@@ -63,7 +58,6 @@ public class VeiculoModel {
 
     // ATUALIZAR
     public Veiculo atualizar(Integer numeroOriginal, Veiculo dados) {
-        validarVeiculo(dados);
 
         return veiculoRepositorio.findByNumero(numeroOriginal)
             .map(veiculo -> {
@@ -90,39 +84,4 @@ public class VeiculoModel {
             }).orElse(null);
     }
 
-    // VALIDAÇÕES
-    private void validarVeiculo(Veiculo veiculo) {
-
-        if (veiculo.getNumero() <= 0) {
-            throw new IllegalArgumentException(
-                    "O número do veículo deve ser inteiro e positivo.");
-        }
-
-        // Máximo 10 dígitos
-        if (String.valueOf(veiculo.getNumero()).length() > 10) {
-            throw new IllegalArgumentException(
-                    "O número do veículo deve ter no máximo 10 dígitos.");
-        }
-
-        if (veiculo.getPlaca() == null || veiculo.getPlaca().isBlank()) {
-            throw new IllegalArgumentException("A placa é obrigatória.");
-        }
-
-        String placa = veiculo.getPlaca().trim().toUpperCase();
-
-        if (!placa.matches(PLACA_REGEX)) {
-            throw new IllegalArgumentException(
-                    "Placa inválida. Utilize os formatos AAA-1234 ou AAA-1A23.");
-        }
-
-        veiculo.setPlaca(placa);
-
-        if (veiculo.getMarca() == null) {
-            throw new IllegalArgumentException("A marca é obrigatória.");
-        }
-
-        if (veiculo.getTipo() == null) {
-            throw new IllegalArgumentException("O tipo é obrigatório.");
-        }
-    }
 }

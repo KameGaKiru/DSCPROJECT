@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import br.edu.ifpe.dsc.model.VeiculoModel;
 import br.edu.ifpe.dsc.model.dto.Veiculo;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/veiculo")
@@ -19,7 +20,7 @@ public class VeiculoControlador {
 
     // POST - CADASTRAR
     @PostMapping("/cadastrar")
-    public ResponseEntity<?> cadastrar(@RequestBody Veiculo veiculo) {
+    public ResponseEntity<?> cadastrar(@Valid @RequestBody Veiculo veiculo) {
         try {
             Veiculo salvo = veiculoModel.salvar(veiculo);
             return ResponseEntity.ok(salvo);
@@ -45,7 +46,7 @@ public class VeiculoControlador {
     // PUT - ATUALIZAR POR NUMERO
     @PutMapping("/atualizar/{numero}")
     public ResponseEntity<?> atualizar(@PathVariable int numero,
-                                       @RequestBody Veiculo dados) {
+                                       @Valid@RequestBody Veiculo dados) {
         try {
             Veiculo atualizado = veiculoModel.atualizar(numero, dados);
             if (atualizado == null) {

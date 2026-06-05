@@ -10,9 +10,9 @@ import br.edu.ifpe.dsc.model.dto.Veiculo;
 @Repository
 public interface VeiculoRepositorio extends JpaRepository<Veiculo, Long> {
 
-    Optional<Veiculo> findByNumero(int numero);
+    Optional<Veiculo> findByNumero(long numero);
 
-    boolean existsByNumero(int numero);
+    boolean existsByNumero(long numero);
 
     Optional<Veiculo> findByPlaca(String placa);
 

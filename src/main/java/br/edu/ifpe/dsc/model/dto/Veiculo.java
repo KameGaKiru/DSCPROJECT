@@ -20,7 +20,7 @@ public class Veiculo {
     @Max(value = 9999999999L,
         message = "O número do veículo deve ter no máximo 10 dígitos.")
     @Column(unique = true, nullable = false)
-    private int numero;
+    private long numero;
 
     @NotNull(message = "A placa é obrigatória.")
     @Pattern(
@@ -51,11 +51,11 @@ public Long getId() {
     return id;
 }
 
-public int getNumero() {
+public long getNumero() {
     return numero;
 }
 
-public void setNumero(int numero) {
+public void setNumero(long numero) {
     this.numero = numero;
 }
 

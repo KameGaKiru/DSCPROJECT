@@ -17,11 +17,10 @@ public class Veiculo {
     private Long id;
 
     @Positive(message = "O número do veículo deve ser positivo.")
+    @Max(value = 9999999999L,
+        message = "O número do veículo deve ter no máximo 10 dígitos.")
     @Column(unique = true, nullable = false)
     private int numero;
-    @Max(value = 9999999999L,
-     message = "O número do veículo deve ter no máximo 10 dígitos.")
-    @Positive(message = "O número do veículo deve ser positivo.")
 
     @NotNull(message = "A placa é obrigatória.")
     @Pattern(

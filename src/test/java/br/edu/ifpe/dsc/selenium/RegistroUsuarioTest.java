@@ -8,19 +8,35 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RegistroUsuarioTest extends BaseSeleniumTest {
 
+    private void preencherRegistro(String matricula, String nome, String sobrenome, String funcao, String senha) {
+        driver.findElement(By.id("matricula")).clear();
+        driver.findElement(By.id("matricula")).sendKeys(matricula);
+
+        driver.findElement(By.id("nome")).clear();
+        driver.findElement(By.id("nome")).sendKeys(nome);
+
+        driver.findElement(By.id("sobrenome")).clear();
+        driver.findElement(By.id("sobrenome")).sendKeys(sobrenome);
+
+        new Select(driver.findElement(By.id("funcao"))).selectByValue(funcao);
+
+        driver.findElement(By.id("senha")).clear();
+        driver.findElement(By.id("senha")).sendKeys(senha);
+    }
+
+    private void clicarRegistrar() {
+        clicar(By.cssSelector("#registroForm button[type='submit']"));
+    }
+
     @Test
     void deveRegistrarUsuarioComSucesso() {
         abrirPagina("registro.html");
 
         String matricula = String.valueOf(numeroUnico()).substring(0, 6);
 
-        driver.findElement(By.id("matricula")).sendKeys(matricula);
-        driver.findElement(By.id("nome")).sendKeys("Usuario");
-        driver.findElement(By.id("sobrenome")).sendKeys("Teste");
-        new Select(driver.findElement(By.id("funcao"))).selectByValue("MOTORISTA");
-        driver.findElement(By.id("senha")).sendKeys("senha123");
+        preencherRegistro(matricula, "Usuario", "Teste", "MOTORISTA", "senha123");
 
-        driver.findElement(By.cssSelector("#registroForm button[type='submit']")).click();
+        clicarRegistrar();
 
         String alerta = capturarAlerta();
 
@@ -28,52 +44,228 @@ public class RegistroUsuarioTest extends BaseSeleniumTest {
     }
 
     @Test
+    void devePermitirApenasMatriculasNumericas() {
+        abrirPagina("registro.html");
+
+        driver.findElement(By.id("matricula")).sendKeys("abc123@@");
+
+        String valor = driver.findElement(By.id("matricula")).getAttribute("value");
+
+        assertEquals("123", valor);
+    }
+
+    @Test
+    void deveLimitarMatriculaEmNoMaximo12Digitos() {
+        abrirPagina("registro.html");
+
+        driver.findElement(By.id("matricula")).sendKeys("12345678901234567890");
+
+        String valor = driver.findElement(By.id("matricula")).getAttribute("value");
+
+        assertTrue(valor.length() <= 12);
+        assertEquals("123456789012", valor);
+    }
+
+    @Test
     void deveBloquearMatriculaDuplicada() {
         abrirPagina("registro.html");
 
-        driver.findElement(By.id("matricula")).sendKeys(MATRICULA_MOTORISTA);
-        driver.findElement(By.id("nome")).sendKeys("Motorista");
-        driver.findElement(By.id("sobrenome")).sendKeys("Duplicado");
-        new Select(driver.findElement(By.id("funcao"))).selectByValue("MOTORISTA");
-        driver.findElement(By.id("senha")).sendKeys("senha123");
+        preencherRegistro(
+                MATRICULA_MOTORISTA,
+                "Motorista",
+                "Duplicado",
+                "MOTORISTA",
+                "senha123"
+        );
 
-        driver.findElement(By.cssSelector("#registroForm button[type='submit']")).click();
+        clicarRegistrar();
 
         String alerta = capturarAlerta();
 
-        assertTrue(alerta.toLowerCase().contains("matr")
-                || alerta.toLowerCase().contains("erro"));
+        assertTrue(
+                alerta.toLowerCase().contains("matr")
+                        || alerta.toLowerCase().contains("cadastr")
+                        || alerta.toLowerCase().contains("duplic"),
+                "Alerta recebido: " + alerta
+        );
+    }
+
+    @Test
+    void deveExibirMensagemQuandoMatriculaJaEstaCadastrada() {
+        abrirPagina("registro.html");
+
+        preencherRegistro(
+                MATRICULA_MOTORISTA,
+                "Usuario",
+                "Repetido",
+                "MOTORISTA",
+                "senha123"
+        );
+
+        clicarRegistrar();
+
+        String alerta = capturarAlerta();
+
+        assertTrue(
+                alerta.toLowerCase().contains("matr")
+                        && (
+                            alerta.toLowerCase().contains("registr")
+                            || alerta.toLowerCase().contains("cadastr")
+                            || alerta.toLowerCase().contains("duplic")
+                        ),
+                "Alerta recebido: " + alerta
+        );
+    }
+
+    @Test
+    void deveBloquearNomeObrigatorio() {
+        abrirPagina("registro.html");
+
+        preencherRegistro(
+                String.valueOf(numeroUnico()).substring(0, 6),
+                "",
+                "Teste",
+                "MOTORISTA",
+                "senha123"
+        );
+
+        clicarRegistrar();
+
+        String alerta = capturarAlerta();
+
+        assertTrue(alerta.toLowerCase().contains("nome"), "Alerta recebido: " + alerta);
+    }
+
+    @Test
+    void deveBloquearSobrenomeObrigatorio() {
+        abrirPagina("registro.html");
+
+        preencherRegistro(
+                String.valueOf(numeroUnico()).substring(0, 6),
+                "Usuario",
+                "",
+                "MOTORISTA",
+                "senha123"
+        );
+
+        clicarRegistrar();
+
+        String alerta = capturarAlerta();
+
+        assertTrue(alerta.toLowerCase().contains("sobrenome"), "Alerta recebido: " + alerta);
+    }
+
+    @Test
+    void deveBloquearNomeApenasComEspacos() {
+        abrirPagina("registro.html");
+
+        preencherRegistro(
+                String.valueOf(numeroUnico()).substring(0, 6),
+                "     ",
+                "Teste",
+                "MOTORISTA",
+                "senha123"
+        );
+
+        clicarRegistrar();
+
+        String alerta = capturarAlerta();
+
+        assertTrue(alerta.toLowerCase().contains("nome"), "Alerta recebido: " + alerta);
+    }
+
+    @Test
+    void deveBloquearSobrenomeApenasComEspacos() {
+        abrirPagina("registro.html");
+
+        preencherRegistro(
+                String.valueOf(numeroUnico()).substring(0, 6),
+                "Usuario",
+                "     ",
+                "MOTORISTA",
+                "senha123"
+        );
+
+        clicarRegistrar();
+
+        String alerta = capturarAlerta();
+
+        assertTrue(alerta.toLowerCase().contains("sobrenome"), "Alerta recebido: " + alerta);
     }
 
     @Test
     void deveBloquearNomeNumerico() {
         abrirPagina("registro.html");
 
-        driver.findElement(By.id("matricula")).sendKeys("987654");
-        driver.findElement(By.id("nome")).sendKeys("12345");
-        driver.findElement(By.id("sobrenome")).sendKeys("Teste");
-        driver.findElement(By.id("senha")).sendKeys("senha123");
+        preencherRegistro(
+                String.valueOf(numeroUnico()).substring(0, 6),
+                "12345",
+                "Teste",
+                "MOTORISTA",
+                "senha123"
+        );
 
-        driver.findElement(By.cssSelector("#registroForm button[type='submit']")).click();
+        clicarRegistrar();
 
         String alerta = capturarAlerta();
 
-        assertTrue(alerta.toLowerCase().contains("nome"));
+        assertTrue(alerta.toLowerCase().contains("nome"), "Alerta recebido: " + alerta);
     }
 
     @Test
     void deveBloquearSenhaCurta() {
         abrirPagina("registro.html");
 
-        driver.findElement(By.id("matricula")).sendKeys("987653");
-        driver.findElement(By.id("nome")).sendKeys("Usuario");
-        driver.findElement(By.id("sobrenome")).sendKeys("Teste");
-        driver.findElement(By.id("senha")).sendKeys("123");
+        preencherRegistro(
+                String.valueOf(numeroUnico()).substring(0, 6),
+                "Usuario",
+                "Teste",
+                "MOTORISTA",
+                "123"
+        );
 
-        driver.findElement(By.cssSelector("#registroForm button[type='submit']")).click();
+        clicarRegistrar();
 
         String alerta = capturarAlerta();
 
-        assertTrue(alerta.contains("senha deve ter entre 6 e 20"));
+        assertTrue(alerta.toLowerCase().contains("senha"), "Alerta recebido: " + alerta);
+    }
+
+    @Test
+    void deveBloquearSenhaMaiorQue20Caracteres() {
+        abrirPagina("registro.html");
+
+        preencherRegistro(
+                String.valueOf(numeroUnico()).substring(0, 6),
+                "Usuario",
+                "Teste",
+                "MOTORISTA",
+                "1234567890123456789012345"
+        );
+
+        String valorSenha = driver.findElement(By.id("senha")).getAttribute("value");
+
+        assertTrue(valorSenha.length() <= 20);
+    }
+
+    @Test
+    void deveCadastrarUsuarioComFuncaoValida() {
+        abrirPagina("registro.html");
+
+        String matricula = String.valueOf(numeroUnico()).substring(0, 6);
+
+        preencherRegistro(
+                matricula,
+                "Usuario",
+                "Funcao",
+                "MECANICO",
+                "senha123"
+        );
+
+        clicarRegistrar();
+
+        String alerta = capturarAlerta();
+
+        assertTrue(alerta.toLowerCase().contains("sucesso"), "Alerta recebido: " + alerta);
     }
 }

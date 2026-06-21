@@ -17,8 +17,11 @@ public class VeiculoModel {
     @Autowired
     private VeiculoRepositorio veiculoRepositorio;
 
-    @Autowired
-    private ChecklistRepositorio checklistRepositorio;
+    private final ChecklistRepositorio checklistRepositorio;
+
+    VeiculoModel(ChecklistRepositorio checklistRepositorio) {
+        this.checklistRepositorio = checklistRepositorio;
+    }
 
         // CADASTRAR
     public Veiculo salvar(Veiculo veiculo) {

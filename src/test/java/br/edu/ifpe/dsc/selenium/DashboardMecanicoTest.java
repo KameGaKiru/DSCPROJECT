@@ -7,7 +7,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MecanicoTest extends BaseSeleniumTest {
+public class DashboardMecanicoTest extends BaseSeleniumTest {
 
     @Test
     void deveCarregarCardsDoMecanico() {

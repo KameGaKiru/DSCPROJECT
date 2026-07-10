@@ -5,7 +5,7 @@ const usuario    = JSON.parse(localStorage.getItem("usuario"));
 const authHeader = localStorage.getItem("authHeader");
 
 if (!usuario || !authHeader || usuario.funcao?.toUpperCase() !== "MOTORISTA") {
-    alert("Sessão inválida ou acesso negado!");
+    alert("Acesso negado!");
     localStorage.clear();
     window.location.href = "index.html";
 }

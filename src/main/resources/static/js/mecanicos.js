@@ -8,7 +8,7 @@ const usuario    = JSON.parse(localStorage.getItem("usuario"));
 const authHeader = localStorage.getItem("authHeader");
 
 if (!usuario || !authHeader || usuario.funcao?.toUpperCase() !== "MECANICO") {
-    alert("Sessão inválida ou acesso negado!");
+    alert("Acesso negado!");
     localStorage.clear();
     window.location.href = "index.html";
 }
@@ -163,13 +163,13 @@ document.getElementById("formSolucao").addEventListener("submit", async function
 
         // Deve estar preenchido
         if (!solucao) {
-            alert("Descreva a solução antes de confirmar!");
+            alert("Descreva uma solução!");
             return;
         }
 
         // Deve conter ao menos uma letra
         if (!/[a-zA-ZÀ-ÿ]/.test(solucao)) {
-            alert("A solução deve conter ao menos uma letra, não apenas números.");
+            alert("Descreva uma solução válida! (deve conter ao menos uma letra)");
             return;
         }
 
@@ -203,7 +203,7 @@ document.getElementById("formSolucao").addEventListener("submit", async function
         }
 
     } catch (err) {
-        alert("Erro ao conectar ao servidor!");
+        alert("Erro de conexão!");
         console.error(err);
     }
 });

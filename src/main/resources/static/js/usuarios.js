@@ -4,7 +4,7 @@ const usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
 
 // Bloquear motorista
 if (usuarioLogado.funcao !== "COORDENADOR") {
-    alert("Acesso negado! Somente coordenadores podem acessar essa página.");
+    alert("Acesso negado! O Usuário não pode acessar essa página.");
     window.location.href = "dashboard_motorista.html";
 }
 

@@ -7,7 +7,7 @@ async function login() {
     const senha = document.getElementById("senha").value.replace(/\s/g, "");
     
     if (!matricula || !senha) {
-        alert("Preencha matrícula e senha!");
+        alert("Preencha os campos!");
         return;
     }
 
@@ -19,7 +19,7 @@ async function login() {
         });
 
         if (!res.ok) {
-            alert("Matrícula ou senha inválidos!");
+            alert("Dados inválidos!");
             return;
         }
 
@@ -40,7 +40,7 @@ async function login() {
         }
 
     } catch (err) {
-        alert("Erro ao conectar ao servidor!");
+        alert("Erro de conexão!");
         console.error(err);
     }
 }
@@ -55,19 +55,19 @@ async function registrar() {
     const funcao    = document.getElementById("funcao").value;
 
     if (!/^\d+$/.test(matricula) || matricula.length > 12) {
-        alert("A matrícula deve conter apenas números (máximo 12 dígitos).");
+        alert("Matrícula obrigatória: (máximo 12 dígitos).");
         return;
     }
     if (!nome || nome.length > 60) {
-        alert("O nome é obrigatório e deve ter no máximo 60 caracteres.");
+        alert("Nome obrigatório: (máximo 60 caracteres).");
         return;
     }
     if (!sobrenome || sobrenome.length > 60) {
-        alert("O sobrenome é obrigatório e deve ter no máximo 60 caracteres.");
+        alert("Sobrenome obrigatório: (máximo 60 caracteres).");
         return;
     }
     if (senha.length < 6 || senha.length > 20) {
-        alert("A senha deve ter entre 6 e 20 caracteres.");
+        alert("A senha deve ter: (6 a 20 caracteres).");
         return;
     }
 
@@ -86,7 +86,7 @@ async function registrar() {
             alert("Erro ao registrar: " + erro);
         }
     } catch (err) {
-        alert("Erro ao conectar ao servidor!");
+        alert("Erro de conexão!");
         console.error(err);
     }
 }

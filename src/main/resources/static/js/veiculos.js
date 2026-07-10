@@ -58,7 +58,7 @@ function validarVeiculo(numero, placa, marca, tipo) {
     }
 
     if (numero.length > 10) {
-        alert("Número deve ter no máximo 10 dígitos.");
+        alert("Número obrigatório: (máximo 10 dígitos).");
         return false;
     }
 
@@ -73,7 +73,7 @@ function validarVeiculo(numero, placa, marca, tipo) {
     }
 
     if (!marca || !tipo) {
-        alert("Todos os campos são obrigatórios.");
+        alert("Preencher todos os campos.");
         return false;
     }
 

@@ -209,10 +209,9 @@ document.getElementById("formSolucao").addEventListener("submit", async function
 });
 
 
-// CHAT (futuro)
+// CHAT
 function irParaChat() {
-    alert("Chat em desenvolvimento — disponível em breve! 🚧");
-    // window.location.href = "chat.html"; // descomente quando implementar
+    window.location.href = "chat.html"; 
 }
 
 document.addEventListener("DOMContentLoaded", () => {

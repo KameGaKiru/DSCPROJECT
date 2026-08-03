@@ -58,7 +58,10 @@ public class SecurityConfig {
                         "/img/**",
                         "/images/**",
                         "/webjars/**",
-                        "/favicon.ico"
+                        "/favicon.ico",
+                        "/chat.html",
+                        "/js/chat.js",
+                        "/ws-chat/**"
                 ).permitAll()
 
                 // LOGIN / CADASTRO

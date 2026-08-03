@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Chat — Motorista e Mecânico</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #f0f2f5;
+    }
+
+    .chat-container {
+      max-width: 850px;
+      margin: 35px auto;
+    }
+
+    .chat-card {
+      border: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    .chat-header {
+      background-color: #1a1a2e;
+      color: white;
+      padding: 16px 20px;
+    }
+
+    .mensagens {
+      height: 480px;
+      overflow-y: auto;
+      padding: 20px;
+      background-color: white;
+    }
+
+    .mensagem {
+      max-width: 75%;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      background-color: #e9ecef;
+    }
+
+    .mensagem-propria {
+      margin-left: auto;
+      background-color: #d9ecff;
+    }
+
+    .mensagem-sistema {
+      max-width: 100%;
+      text-align: center;
+      color: #6c757d;
+      background: transparent;
+      font-size: 0.85rem;
+    }
+
+    .mensagem-remetente {
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+
+    .mensagem-horario {
+      color: #6c757d;
+      font-size: 0.72rem;
+      margin-top: 4px;
+    }
+
+    .chat-footer {
+      background-color: white;
+      padding: 16px;
+      border-top: 1px solid #dee2e6;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="chat-container px-3">
+  <div class="chat-card">
+
+    <div class="chat-header d-flex align-items-center">
+      <div>
+        <h5 class="mb-1">💬 Chat operacional</h5>
+        <small id="statusConexao">Conectando...</small>
+      </div>
+
+      <button
+        id="voltarBtn"
+        type="button"
+        class="btn btn-outline-light btn-sm ms-auto">
+        Voltar
+      </button>
+    </div>
+
+    <div id="mensagens" class="mensagens">
+      <div class="text-center text-muted">
+        Nenhuma mensagem nesta sessão.
+      </div>
+    </div>
+
+    <div class="chat-footer">
+      <form id="chatForm" class="d-flex gap-2">
+
+        <input
+          type="text"
+          id="mensagemInput"
+          class="form-control"
+          maxlength="500"
+          autocomplete="off"
+          placeholder="Digite uma mensagem..."
+          required>
+
+        <button
+          id="enviarBtn"
+          type="submit"
+          class="btn btn-primary"
+          disabled>
+          Enviar
+        </button>
+
+      </form>
+
+      <small class="text-muted">
+        <span id="contadorMensagem">0</span>/500
+      </small>
+    </div>
+
+  </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7/bundles/stomp.umd.min.js"></script>
+    <script src="js/chat.js"></script>
+
+</body>
+</html>

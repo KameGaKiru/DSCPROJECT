@@ -75,6 +75,7 @@
   <span style="font-size:1.5rem">🚌</span>
   <h1>Dashboard — Motorista</h1>
   <div class="actions">
+    <button id="chatBtn" class="btn btn-success btn-sm">💬 Chat</button>
     <button id="checklistBtn" class="btn btn-primary btn-sm">+ Fazer Checklist</button>
     <button id="logoutBtn" class="btn btn-danger btn-sm">Sair</button>
   </div>
@@ -149,6 +150,10 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 
 document.getElementById("checklistBtn").addEventListener("click", () => {
     window.location.href = "dashboard_checklist.html";
+});
+
+document.getElementById("chatBtn").addEventListener("click", () => {
+    window.location.href = "chat.html";
 });
 
 // Carrega usuários

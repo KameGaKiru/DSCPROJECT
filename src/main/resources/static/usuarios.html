@@ -1,34 +1,256 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Usuários - Registro de Veículos</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1">
+
+  <title>Gerenciamento de Usuários</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="css/tema.css">
+  <link rel="stylesheet" href="css/geral.css">
+  <link rel="stylesheet" href="css/listar.css">
 </head>
+
 <body>
-  <h2>Gerenciamento de Usuários</h2>
 
-  <form id="usuarioForm">
-    <input type="hidden" id="usuarioId">
-    <label>Nome:</label>
-    <input type="text" id="nome"><br>
-    <label>Sobrenome:</label>
-    <input type="text" id="sobrenome"><br>
-    <label>Senha:</label>
-    <input type="password" id="senha"><br>
-    <button type="submit">Salvar</button>
-  </form>
+  <header class="topbar">
 
-  <h3>Lista de Usuários</h3>
-  <table border="1" id="usuariosTable">
-    <thead>
-      <tr>
-        <th>ID</th><th>Nome</th><th>Email</th><th>Ações</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <h1>
+      Gerenciamento de usuários
+    </h1>
 
-  <a href="veiculos.html">Ir para Veículos</a>
+    <div class="actions">
+
+      <a
+        href="dashboard_coordenador.html"
+        class="btn btn-outline-light btn-sm">
+        Voltar
+      </a>
+
+    </div>
+
+  </header>
+
+  <main class="container pb-5">
+
+    <div
+      id="mensagemGeral"
+      class="alert"
+      role="alert">
+    </div>
+
+    <section class="card mb-4">
+
+      <div class="card-header-clean">
+        Cadastrar usuário
+      </div>
+
+      <div class="card-body">
+
+        <form
+          id="usuarioForm"
+          novalidate
+          onsubmit="event.preventDefault(); cadastrarUsuario();">
+
+          <div class="row g-3">
+
+            <div class="col-12 col-md-6 col-lg-3">
+
+              <label
+                for="matricula"
+                class="form-label">
+                Matrícula
+              </label>
+
+              <input
+                id="matricula"
+                type="text"
+                class="form-control"
+                inputmode="numeric"
+                maxlength="12"
+                placeholder="Somente números">
+
+              <small
+                id="matriculaErro"
+                class="erro-campo">
+              </small>
+
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+
+              <label
+                for="nome"
+                class="form-label">
+                Nome
+              </label>
+
+              <input
+                id="nome"
+                type="text"
+                class="form-control"
+                maxlength="60"
+                placeholder="Digite o nome">
+
+              <small
+                id="nomeErro"
+                class="erro-campo">
+              </small>
+
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+
+              <label
+                for="sobrenome"
+                class="form-label">
+                Sobrenome
+              </label>
+
+              <input
+                id="sobrenome"
+                type="text"
+                class="form-control"
+                maxlength="60"
+                placeholder="Digite o sobrenome">
+
+              <small
+                id="sobrenomeErro"
+                class="erro-campo">
+              </small>
+
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+
+              <label
+                for="senha"
+                class="form-label">
+                Senha
+              </label>
+
+              <input
+                id="senha"
+                type="password"
+                class="form-control"
+                minlength="6"
+                maxlength="20"
+                placeholder="Entre 6 e 20 caracteres">
+
+              <small
+                id="senhaErro"
+                class="erro-campo">
+              </small>
+
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+
+              <label
+                for="funcao"
+                class="form-label">
+                Função
+              </label>
+
+              <select
+                id="funcao"
+                class="form-select">
+
+                <option value="">
+                  Selecione uma função
+                </option>
+
+                <option value="MOTORISTA">
+                  Motorista
+                </option>
+
+                <option value="COORDENADOR">
+                  Coordenador
+                </option>
+
+                <option value="MECANICO">
+                  Mecânico
+                </option>
+
+              </select>
+
+              <small
+                id="funcaoErro"
+                class="erro-campo">
+              </small>
+
+            </div>
+
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary mt-4 px-4">
+            Salvar usuário
+          </button>
+
+        </form>
+
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <div class="card-header-clean">
+        Usuários cadastrados
+      </div>
+
+      <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+          <table class="table table-hover mb-0">
+
+            <thead class="table-light">
+
+              <tr>
+                <th>Matrícula</th>
+                <th>Nome</th>
+                <th>Sobrenome</th>
+                <th>Função</th>
+                <th>Ações</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="usuariosTable">
+
+              <tr>
+
+                <td
+                  colspan="5"
+                  class="text-center text-muted py-4">
+                  Carregando usuários...
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="js/mensagens.js"></script>
   <script src="js/usuarios.js"></script>
+
 </body>
 </html>

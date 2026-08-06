@@ -1,147 +1,403 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1">
+
   <title>Checklist — Motorista</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="css/tema.css">
+  <link rel="stylesheet" href="css/geral.css">
+  <link rel="stylesheet" href="css/listar.css">
+  <link rel="stylesheet" href="css/checklist.css">
 </head>
-<body class="bg-light">
 
-<div class="container mt-4">
+<body>
 
-  <div class="d-flex align-items-center mb-4 gap-2">
-    <h4 class="mb-0 fw-bold">🚌 Checklist do Veículo</h4>
-    <div class="ms-auto d-flex gap-2">
-      <button onclick="window.location.href='dashboard_motorista.html'"
-        class="btn btn-outline-secondary btn-sm">← Voltar</button>
-      <button id="logoutBtn" class="btn btn-danger btn-sm">Sair</button>
+  <header class="page-header bg-white border-bottom">
+
+    <div class="container d-flex align-items-center gap-2">
+
+      <h1 class="h5 mb-0">
+        Checklist do veículo
+      </h1>
+
+      <div class="ms-auto d-flex gap-2">
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          onclick="window.location.href='dashboard_motorista.html'">
+          Voltar
+        </button>
+
+        <button
+          id="logoutBtn"
+          type="button"
+          class="btn btn-danger btn-sm">
+          Sair
+        </button>
+
+      </div>
+
     </div>
-  </div>
 
-  <!-- FORMULÁRIO -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-dark text-white fw-semibold">📋 Novo Checklist</div>
-    <div class="card-body">
-      <div class="row g-3 mb-3">
-        <div class="col-md-4">
-          <label class="form-label fw-semibold">Tipo</label>
-          <select id="tipo" class="form-select">
-            <option value="ENTRADA">🟢 Entrada</option>
-            <option value="SAIDA">🟠 Saída</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label fw-semibold">Veículo</label>
-          <select id="veiculoSelect" class="form-select">
-            <option value="">Carregando veículos...</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label fw-semibold">KM Atual</label>
-          <input type="number" id="km" class="form-control" placeholder="Ex: 12500" min="0">
-        </div>
+  </header>
+
+  <main class="container pb-5">
+
+    <div
+      id="mensagemGeral"
+      class="alert"
+      role="alert">
+    </div>
+
+    <section class="card mb-4">
+
+      <div class="card-header-clean">
+        Novo checklist
       </div>
 
-      <label class="form-label fw-semibold">Itens de Verificação</label>
-      <div class="row row-cols-2 row-cols-md-4 g-2 mb-3">
-        <div class="col"><div class="form-check border rounded p-2">
-          <input class="form-check-input" type="checkbox" id="faroisDianteiros">
-          <label class="form-check-label" for="faroisDianteiros">Faróis Dianteiros</label>
-        </div></div>
-        <div class="col"><div class="form-check border rounded p-2">
-          <input class="form-check-input" type="checkbox" id="setasDianteiras">
-          <label class="form-check-label" for="setasDianteiras">Setas Dianteiras</label>
-        </div></div>
-        <div class="col"><div class="form-check border rounded p-2">
-          <input class="form-check-input" type="checkbox" id="faroisTraseiros">
-          <label class="form-check-label" for="faroisTraseiros">Faróis Traseiros</label>
-        </div></div>
-        <div class="col"><div class="form-check border rounded p-2">
-          <input class="form-check-input" type="checkbox" id="setasTraseiras">
-          <label class="form-check-label" for="setasTraseiras">Setas Traseiras</label>
-        </div></div>
-        <div class="col"><div class="form-check border rounded p-2">
-          <input class="form-check-input" type="checkbox" id="luzesFreio">
-          <label class="form-check-label" for="luzesFreio">Luzes de Freio</label>
-        </div></div>
-        <div class="col"><div class="form-check border rounded p-2">
-          <input class="form-check-input" type="checkbox" id="nivelOleo">
-          <label class="form-check-label" for="nivelOleo">Nível de Óleo</label>
-        </div></div>
-        <div class="col"><div class="form-check border rounded p-2">
-          <input class="form-check-input" type="checkbox" id="nivelAgua">
-          <label class="form-check-label" for="nivelAgua">Nível de Água</label>
-        </div></div>
-      </div>
+      <div class="card-body">
 
-      <!-- Observações com limite de 400 caracteres -->
-      <div class="mb-3">
-        <label class="form-label fw-semibold">Observações</label>
-        <textarea id="observacoes" class="form-control" rows="3"
-          maxlength="400"
-          placeholder="Descreva problemas ou ocorrências (máx. 400 caracteres)..."></textarea>
-        <div class="d-flex justify-content-between mt-1">
-          <!-- Mensagem de erro inline — oculta por padrão -->
-          <small id="observacoesErro" class="text-danger" style="display:none;">
-            As observações não podem conter apenas espaços em branco.
+        <div class="row g-3 mb-4">
+
+          <div class="col-md-4">
+
+            <label
+              for="tipo"
+              class="form-label">
+              Tipo
+            </label>
+
+            <select
+              id="tipo"
+              class="form-select">
+
+              <option value="ENTRADA">
+                Entrada
+              </option>
+
+              <option value="SAIDA">
+                Saída
+              </option>
+
+            </select>
+
+            <small
+              id="tipoErro"
+              class="erro-campo">
+            </small>
+
+          </div>
+
+          <div class="col-md-4">
+
+            <label
+              for="veiculoSelect"
+              class="form-label">
+              Veículo
+            </label>
+
+            <select
+              id="veiculoSelect"
+              class="form-select">
+
+              <option value="">
+                Carregando veículos...
+              </option>
+
+            </select>
+
+            <small
+              id="veiculoSelectErro"
+              class="erro-campo">
+            </small>
+
+          </div>
+
+          <div class="col-md-4">
+
+            <label
+              for="km"
+              class="form-label">
+              KM atual
+            </label>
+
+            <input
+              type="number"
+              id="km"
+              class="form-control"
+              placeholder="Ex.: 12500"
+              min="0"
+              step="0.1">
+
+            <small
+              id="kmErro"
+              class="erro-campo">
+            </small>
+
+          </div>
+
+        </div>
+
+        <fieldset class="mb-4">
+
+          <legend class="form-label">
+            Itens de verificação
+          </legend>
+
+          <p class="text-muted small mb-3">
+            Marque os itens que estiverem em condições adequadas.
+          </p>
+
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-2">
+
+            <div class="col">
+
+              <div class="form-check item-verificacao">
+
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="faroisDianteiros">
+
+                <label
+                  class="form-check-label"
+                  for="faroisDianteiros">
+                  Faróis dianteiros
+                </label>
+
+              </div>
+
+            </div>
+
+            <div class="col">
+
+              <div class="form-check item-verificacao">
+
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="setasDianteiras">
+
+                <label
+                  class="form-check-label"
+                  for="setasDianteiras">
+                  Setas dianteiras
+                </label>
+
+              </div>
+
+            </div>
+
+            <div class="col">
+
+              <div class="form-check item-verificacao">
+
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="faroisTraseiros">
+
+                <label
+                  class="form-check-label"
+                  for="faroisTraseiros">
+                  Faróis traseiros
+                </label>
+
+              </div>
+
+            </div>
+
+            <div class="col">
+
+              <div class="form-check item-verificacao">
+
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="setasTraseiras">
+
+                <label
+                  class="form-check-label"
+                  for="setasTraseiras">
+                  Setas traseiras
+                </label>
+
+              </div>
+
+            </div>
+
+            <div class="col">
+
+              <div class="form-check item-verificacao">
+
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="luzesFreio">
+
+                <label
+                  class="form-check-label"
+                  for="luzesFreio">
+                  Luzes de freio
+                </label>
+
+              </div>
+
+            </div>
+
+            <div class="col">
+
+              <div class="form-check item-verificacao">
+
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="nivelOleo">
+
+                <label
+                  class="form-check-label"
+                  for="nivelOleo">
+                  Nível de óleo
+                </label>
+
+              </div>
+
+            </div>
+
+            <div class="col">
+
+              <div class="form-check item-verificacao">
+
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="nivelAgua">
+
+                <label
+                  class="form-check-label"
+                  for="nivelAgua">
+                  Nível de água
+                </label>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </fieldset>
+
+        <div class="mb-4">
+
+          <label
+            for="observacoes"
+            class="form-label">
+            Observações
+          </label>
+
+          <textarea
+            id="observacoes"
+            class="form-control"
+            rows="3"
+            maxlength="400"
+            placeholder="Descreva problemas, ocorrências ou informações relevantes">
+          </textarea>
+
+          <small
+            id="observacoesErro"
+            class="erro-campo">
           </small>
-          <small class="text-muted ms-auto">
-            <span id="contadorObservacoes">0</span>/400
-          </small>
+
+          <div class="d-flex justify-content-between mt-1">
+
+            <small class="text-muted">
+              Obrigatório quando algum item não estiver marcado.
+            </small>
+
+            <small class="text-muted">
+              <span id="contadorObservacoes">0</span>/400
+            </small>
+
+          </div>
+
         </div>
+
+        <button
+          type="button"
+          class="btn btn-primary px-4"
+          onclick="registrarChecklist()">
+          Salvar checklist
+        </button>
+
       </div>
 
-      <button onclick="registrarChecklist()" class="btn btn-primary px-4">
-        ✅ Salvar Checklist
-      </button>
-    </div>
-  </div>
+    </section>
 
-  <!-- HISTÓRICO -->
-  <div class="card shadow-sm">
-    <div class="card-header bg-dark text-white fw-semibold">🕓 Histórico de Checklists</div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-striped table-bordered mb-0">
-          <thead class="table-dark">
-            <tr>
-              <th>Tipo</th>
-              <th>Veículo</th>
-              <th>Motorista</th>
-              <th>KM</th>
-              <th>Observações</th>
-              <th>Solução</th>
-              <th>Data / Hora</th>
-            </tr>
-          </thead>
-          <tbody id="checklistTable">
-            <tr><td colspan="7" class="text-center text-muted py-3">Carregando...</td></tr>
-          </tbody>
-        </table>
+    <section class="card">
+
+      <div class="card-header-clean">
+        Histórico de checklists
       </div>
-    </div>
-  </div>
 
-</div>
+      <div class="card-body p-0">
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  // Contador de caracteres em tempo real para o campo de observações
-  const obsTextarea = document.getElementById("observacoes");
-  const obsContador = document.getElementById("contadorObservacoes");
-  const obsErro     = document.getElementById("observacoesErro");
+        <div class="table-responsive">
 
-  obsTextarea.addEventListener("input", function () {
-    obsContador.textContent = this.value.length;
+          <table class="table table-hover mb-0">
 
-    // Se o usuário começou a digitar conteúdo real, esconde o erro
-    if (this.value.trim().length > 0) {
-      obsErro.style.display = "none";
-      this.classList.remove("is-invalid");
-    }
-  });
-</script>
-<script src="js/checklist.js"></script>
+            <thead class="table-light">
+
+              <tr>
+                <th>Tipo</th>
+                <th>Veículo</th>
+                <th>Motorista</th>
+                <th>KM</th>
+                <th>Observações</th>
+                <th>Solução</th>
+                <th>Data / Hora</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="checklistTable">
+
+              <tr>
+
+                <td
+                  colspan="7"
+                  class="text-center text-muted py-4">
+                  Carregando...
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js">
+  </script>
+
+  <script src="js/mensagens.js"></script>
+  <script src="js/checklist.js"></script>
+
 </body>
 </html>

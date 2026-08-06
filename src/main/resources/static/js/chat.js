@@ -1,3 +1,4 @@
+
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 const authHeader = localStorage.getItem("authHeader");
 
@@ -17,19 +18,25 @@ if (
     !authHeader ||
     !["MOTORISTA", "MECANICO"].includes(usuario.funcao?.toUpperCase())
 ) {
-    alert("Sessão inválida ou acesso negado!");
+    salvarMensagemTemporaria("Sessão inválida ou acesso negado.", "warning");
     localStorage.clear();
     window.location.href = "index.html";
+}
+
+function definirStatus(texto, tipo = "normal") {
+    statusConexao.textContent = texto;
+    statusConexao.dataset.status = tipo;
 }
 
 function conectarChat() {
     stompClient = new StompJs.Client({
         webSocketFactory: () => new SockJS("/ws-chat"),
-
         reconnectDelay: 5000,
 
         onConnect: () => {
-            statusConexao.textContent = "Conectado";
+            definirStatus("Conectado", "success");
+            limparMensagemGeral();
+            limparErroCampo("mensagemInput");
             enviarBtn.disabled = false;
 
             stompClient.subscribe("/topic/chat", mensagem => {
@@ -49,13 +56,15 @@ function conectarChat() {
 
         onStompError: frame => {
             console.error("Erro STOMP:", frame);
-            statusConexao.textContent = "Erro na conexão";
+            definirStatus("Erro na conexão", "error");
             enviarBtn.disabled = true;
+            mostrarMensagemGeral("Não foi possível conectar ao chat.", "error");
         },
 
         onWebSocketClose: () => {
-            statusConexao.textContent = "Desconectado";
+            definirStatus("Desconectado", "warning");
             enviarBtn.disabled = true;
+            mostrarMensagemGeral("Conexão encerrada. Tentando reconectar...", "warning");
         }
     });
 
@@ -63,20 +72,22 @@ function conectarChat() {
 }
 
 function enviarMensagem() {
+    limparErroCampo("mensagemInput");
+
     const conteudo = mensagemInput.value.trim();
 
     if (!conteudo) {
-        alert("Digite uma mensagem antes de enviar.");
+        mostrarErroCampo("mensagemInput", "Digite uma mensagem antes de enviar.");
         return;
     }
 
     if (conteudo.length > 500) {
-        alert("A mensagem deve possuir no máximo 500 caracteres.");
+        mostrarErroCampo("mensagemInput", "A mensagem deve ter no máximo 500 caracteres.");
         return;
     }
 
     if (!stompClient || !stompClient.connected) {
-        alert("O chat não está conectado.");
+        mostrarErroCampo("mensagemInput", "O chat ainda não está conectado.");
         return;
     }
 
@@ -136,9 +147,7 @@ function exibirMensagem(mensagem) {
 }
 
 function formatarHorario(data) {
-    if (!data) {
-        return "";
-    }
+    if (!data) return "";
 
     return new Date(data).toLocaleTimeString("pt-BR", {
         hour: "2-digit",
@@ -153,26 +162,22 @@ chatForm.addEventListener("submit", event => {
 
 mensagemInput.addEventListener("input", function () {
     contadorMensagem.textContent = this.value.length;
+    if (this.value.trim()) limparErroCampo("mensagemInput");
 });
 
 voltarBtn.addEventListener("click", () => {
     const funcao = usuario.funcao?.toUpperCase();
 
-    if (stompClient) {
-        stompClient.deactivate();
-    }
+    if (stompClient) stompClient.deactivate();
 
-    if (funcao === "MECANICO") {
-        window.location.href = "dashboard_mecanico.html";
-    } else {
-        window.location.href = "dashboard_motorista.html";
-    }
+    window.location.href =
+        funcao === "MECANICO"
+            ? "dashboard_mecanico.html"
+            : "dashboard_motorista.html";
 });
 
 window.addEventListener("beforeunload", () => {
-    if (stompClient) {
-        stompClient.deactivate();
-    }
+    if (stompClient) stompClient.deactivate();
 });
 
 conectarChat();

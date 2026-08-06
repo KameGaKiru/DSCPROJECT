@@ -1,0 +1,397 @@
+.lista-card {
+    overflow: hidden;
+
+    background-color: #ffffff;
+
+    border: 1px solid var(--cor-borda, #d6dde0);
+    border-radius: var(--raio-card, 7px);
+
+    box-shadow:
+        0 3px 12px rgba(26, 36, 40, 0.05);
+}
+
+.lista-titulo,
+.lista-card .card-header-bar,
+.lista-card .card-header-clean {
+    padding: 11px 16px;
+
+    color: #ffffff !important;
+    background-color: var(
+        --cor-primaria,
+        #78d8ee
+    ) !important;
+
+    border: 0;
+    border-radius: 0 !important;
+
+    font-size: 0.9rem;
+    font-weight: 800;
+
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+}
+
+.card-header-bar {
+    border-radius: 0 !important;
+}
+
+/* TABELA */
+
+.table-responsive {
+    border-radius: 0;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+
+    color: #17191b;
+    background-color: #ffffff;
+
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+.table > :not(caption) > * > * {
+    padding: 0.75rem 0.9rem;
+
+    color: #17191b;
+    background-color: #ffffff;
+
+    border: 1px solid #d6dde0;
+    border-top: 0;
+
+    vertical-align: middle;
+}
+
+.table tr > *:first-child {
+    border-left: 0;
+}
+
+.table tr > *:last-child {
+    border-right: 0;
+}
+
+.table thead th,
+.table-light th,
+.table-dark th {
+    padding: 0.72rem 0.9rem;
+
+    color: #17191b !important;
+    background-color: #edf1f2 !important;
+
+    border-color: #cbd4d7 !important;
+    border-top: 0;
+
+    font-size: 0.76rem;
+    font-weight: 800;
+
+    letter-spacing: 0.045em;
+    text-transform: uppercase;
+
+    white-space: nowrap;
+}
+
+.table-dark {
+    --bs-table-bg: #edf1f2;
+    --bs-table-striped-bg: #f6f7f8;
+    --bs-table-striped-color: #17191b;
+    --bs-table-active-bg: #e5f8fc;
+    --bs-table-active-color: #17191b;
+    --bs-table-hover-bg: #edfafd;
+    --bs-table-hover-color: #17191b;
+
+    color: #17191b;
+    border-color: #cbd4d7;
+}
+
+.table tbody tr {
+    transition: background-color 0.14s ease;
+}
+
+.table tbody tr:hover > * {
+    background-color: #eefbfe !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: #fafbfb;
+    color: #17191b;
+}
+
+.table-striped > tbody > tr:nth-of-type(even) > * {
+    --bs-table-accent-bg: #ffffff;
+    color: #17191b;
+}
+
+.table-hover > tbody > tr:hover > * {
+    --bs-table-accent-bg: #eefbfe;
+    color: #17191b;
+}
+
+.usuario-logado > *,
+.usuario-atual > *,
+.table-active > * {
+    color: #17191b !important;
+    background-color: #e6f8fc !important;
+    font-weight: 700;
+}
+
+.table-danger > * {
+    color: #17191b !important;
+    background-color: #fff5f5 !important;
+}
+
+.table-danger:hover > * {
+    background-color: #fcecec !important;
+}
+
+/* ESTADO VAZIO E CARREGAMENTO */
+
+.lista-vazia,
+.lista-carregando,
+.lista-erro {
+    padding: 2rem 1rem !important;
+    text-align: center;
+}
+
+.lista-vazia,
+.lista-carregando {
+    color: #5f666b !important;
+}
+
+.lista-erro {
+    color: #9b4444 !important;
+}
+
+.table tbody td.text-muted {
+    color: #5f666b !important;
+}
+
+/* BADGES DAS LISTAS */
+
+.table .badge {
+    min-width: 30px;
+    padding: 0.34rem 0.5rem;
+
+    color: #075d69 !important;
+    background-color: #e9f9fd !important;
+
+    border: 1px solid #b8e8f2;
+    border-radius: 3px;
+
+    font-weight: 800;
+    text-align: center;
+}
+
+.table .badge.bg-success {
+    color: #285442 !important;
+    background-color: #eaf5f0 !important;
+    border-color: #b9d8ca;
+}
+
+.table .badge.bg-danger {
+    color: #793737 !important;
+    background-color: #faeded !important;
+    border-color: #e0bcbc;
+}
+
+.table .badge.bg-warning {
+    color: #6d5616 !important;
+    background-color: #fbf4df !important;
+    border-color: #dfd0a0;
+}
+
+/* BOTÕES DAS TABELAS */
+
+.table .btn {
+    min-height: 31px;
+    padding: 0.3rem 0.58rem;
+
+    background-color: #ffffff !important;
+
+    border: 1px solid #bfc8cc !important;
+    border-radius: 4px;
+
+    color: #17191b !important;
+
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.table .btn:hover {
+    color: #17191b !important;
+    background-color: #e9f9fd !important;
+    border-color: #78d8ee !important;
+}
+
+.table .btn-danger,
+.table .btn-deletar {
+    color: #8b3c3c !important;
+    background-color: #ffffff !important;
+    border-color: #d4a8a8 !important;
+}
+
+.table .btn-danger:hover,
+.table .btn-deletar:hover {
+    color: #793737 !important;
+    background-color: #faeded !important;
+    border-color: #9b4444 !important;
+}
+
+.table .btn-warning,
+.table .btn-editar {
+    color: #17191b !important;
+    background-color: #ffffff !important;
+    border-color: #bfc8cc !important;
+}
+
+.table .btn-warning:hover,
+.table .btn-editar:hover {
+    background-color: #e9f9fd !important;
+    border-color: #78d8ee !important;
+}
+
+/* RANKING */
+
+.ranking-posicao {
+    min-width: 42px;
+    font-weight: 800;
+    text-align: center;
+}
+
+#rankingTable td:first-child {
+    font-weight: 800;
+    text-align: center;
+}
+
+/*  LISTA EM FORMATO DE LINHAS */
+
+.lista-simples {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    border: 1px solid #d6dde0;
+}
+
+.lista-simples-item {
+    min-height: 45px;
+    padding: 0.7rem 0.9rem;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    color: #17191b;
+    background-color: #ffffff;
+
+    border-bottom: 1px solid #d6dde0;
+}
+
+.lista-simples-item:last-child {
+    border-bottom: 0;
+}
+
+.lista-simples-item:hover {
+    background-color: #eefbfe;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 767px) {
+    .table > :not(caption) > * > * {
+        padding: 0.66rem 0.7rem;
+        font-size: 0.82rem;
+    }
+
+    .table thead th {
+        font-size: 0.7rem;
+    }
+
+    .table .btn {
+        margin-bottom: 3px;
+    }
+}
+
+/* LISTAS, EDIÇÃO E EXCLUSÃO */
+
+.lista-titulo,
+.lista-card .card-header-bar,
+.lista-card .card-header-clean {
+    color: #17252a !important;
+    background-color: #d5f2f8 !important;
+    border-bottom: 1px solid #9eddea;
+    text-transform: none;
+}
+
+.table thead th,
+.table-light th,
+.table-dark th {
+    color: #17252a !important;
+    background-color: #e7f7fb !important;
+    border-color: #b6dce5 !important;
+}
+
+.table tbody tr:hover > *,
+.table-hover > tbody > tr:hover > * {
+    background-color: #effbfe !important;
+}
+
+.table .btn-editar,
+.table .btn-warning,
+.table button[onclick^="atualizarUsuario"],
+.table button[onclick*="atualizarUsuario"],
+.table button[onclick^="abrirModal"],
+.table button[onclick*="abrirModal"] {
+    min-height: 31px;
+    padding: 0.3rem 0.62rem;
+    color: #17252a !important;
+    background-color: #ffffff !important;
+    border: 1px solid #93bdc7 !important;
+    border-radius: 4px;
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.table .btn-editar:hover,
+.table .btn-warning:hover,
+.table button[onclick^="atualizarUsuario"]:hover,
+.table button[onclick*="atualizarUsuario"]:hover,
+.table button[onclick^="abrirModal"]:hover,
+.table button[onclick*="abrirModal"]:hover {
+    color: #17252a !important;
+    background-color: #e9f9fd !important;
+    border-color: #55c9e5 !important;
+}
+
+.table .btn-deletar,
+.table .btn-danger,
+.table button[onclick^="deletarUsuario"],
+.table button[onclick*="deletarUsuario"],
+.table button[onclick^="deletarVeiculo"],
+.table button[onclick*="deletarVeiculo"] {
+    min-height: 31px;
+    padding: 0.3rem 0.62rem;
+    color: #8b3c3c !important;
+    background-color: #ffffff !important;
+    border: 1px solid #d4a8a8 !important;
+    border-radius: 4px;
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.table .btn-deletar:hover,
+.table .btn-danger:hover,
+.table button[onclick^="deletarUsuario"]:hover,
+.table button[onclick*="deletarUsuario"]:hover,
+.table button[onclick^="deletarVeiculo"]:hover,
+.table button[onclick*="deletarVeiculo"]:hover {
+    color: #793737 !important;
+    background-color: #faeded !important;
+    border-color: #9b4444 !important;
+}
+
+.table td .btn + .btn,
+.table td button + button {
+    margin-left: 5px;
+}

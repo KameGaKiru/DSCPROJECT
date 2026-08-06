@@ -3,8 +3,8 @@ package br.edu.ifpe.dsc.model;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.edu.ifpe.dsc.model.dto.Checklist;
 import br.edu.ifpe.dsc.model.dto.Veiculo;
@@ -14,24 +14,35 @@ import br.edu.ifpe.dsc.model.repositorios.VeiculoRepositorio;
 @Component
 public class VeiculoModel {
 
-    @Autowired
-    private VeiculoRepositorio veiculoRepositorio;
-
+    private final VeiculoRepositorio veiculoRepositorio;
     private final ChecklistRepositorio checklistRepositorio;
 
-    VeiculoModel(ChecklistRepositorio checklistRepositorio) {
+    public VeiculoModel(
+            VeiculoRepositorio veiculoRepositorio,
+            ChecklistRepositorio checklistRepositorio) {
+
+        this.veiculoRepositorio = veiculoRepositorio;
         this.checklistRepositorio = checklistRepositorio;
     }
 
-        // CADASTRAR
+    // CADASTRAR
     public Veiculo salvar(Veiculo veiculo) {
 
+        normalizarDados(veiculo);
+
         if (veiculoRepositorio.existsByNumero(veiculo.getNumero())) {
-            throw new IllegalArgumentException("Número do veículo já cadastrado.");
+            throw new IllegalArgumentException(
+                    "Número do veículo já cadastrado."
+            );
         }
 
-        if (veiculoRepositorio.findByPlaca(veiculo.getPlaca()).isPresent()) {
-            throw new IllegalArgumentException("Placa já cadastrada.");
+        if (veiculoRepositorio
+                .findByPlaca(veiculo.getPlaca())
+                .isPresent()) {
+
+            throw new IllegalArgumentException(
+                    "Placa já cadastrada."
+            );
         }
 
         return veiculoRepositorio.save(veiculo);
@@ -43,48 +54,100 @@ public class VeiculoModel {
     }
 
     // BUSCAR
-    public Optional<Veiculo> buscarPorNumero(Integer numero) {
+    public Optional<Veiculo> buscarPorNumero(long numero) {
         return veiculoRepositorio.findByNumero(numero);
     }
 
     // EXCLUIR
+    @Transactional
     public void deletarVeiculo(Veiculo veiculo) {
-        
-        List<Checklist> vinculados = checklistRepositorio
-                .findByVeiculoOrderByCriadoEmDesc(veiculo);
 
-        vinculados.forEach(c -> c.setVeiculo(null));
+        List<Checklist> vinculados =
+                checklistRepositorio
+                        .findByVeiculoOrderByCriadoEmDesc(veiculo);
+
+        vinculados.forEach(checklist ->
+                checklist.setVeiculo(null)
+        );
+
         checklistRepositorio.saveAll(vinculados);
-
         veiculoRepositorio.delete(veiculo);
     }
 
     // ATUALIZAR
-    public Veiculo atualizar(Integer numeroOriginal, Veiculo dados) {
+    @Transactional
+    public Veiculo atualizar(
+            long numeroOriginal,
+            Veiculo dados) {
 
-        return veiculoRepositorio.findByNumero(numeroOriginal)
-            .map(veiculo -> {
+        Veiculo veiculoAtual = veiculoRepositorio
+                .findByNumero(numeroOriginal)
+                .orElse(null);
 
-                if (dados.getNumero() != numeroOriginal) {
-                    if (veiculoRepositorio.findByNumero(dados.getNumero()).isPresent()) {
-                        throw new IllegalArgumentException("Número do veículo já cadastrado.");
-                    }
-                    veiculo.setNumero(dados.getNumero());
-                }
+        if (veiculoAtual == null) {
+            return null;
+        }
 
-                Optional<Veiculo> placaExistente =
-                        veiculoRepositorio.findByPlaca(dados.getPlaca());
-                if (placaExistente.isPresent() &&
-                    !numeroOriginal.equals(placaExistente.get().getNumero())) {
-                    throw new IllegalArgumentException("Placa já cadastrada.");
-                }
+        normalizarDados(dados);
 
-                veiculo.setPlaca(dados.getPlaca().trim().toUpperCase());
-                veiculo.setMarca(dados.getMarca());
-                veiculo.setTipo(dados.getTipo());
+        /*
+         * Verifica se o novo número está sendo utilizado
+         * por outro veículo.
+         */
+        Optional<Veiculo> veiculoComMesmoNumero =
+                veiculoRepositorio.findByNumero(
+                        dados.getNumero()
+                );
 
-                return veiculoRepositorio.save(veiculo);
-            }).orElse(null);
+        if (veiculoComMesmoNumero.isPresent()
+                && !veiculoComMesmoNumero
+                        .get()
+                        .getId()
+                        .equals(veiculoAtual.getId())) {
+
+            throw new IllegalArgumentException(
+                    "Número do veículo já cadastrado."
+            );
+        }
+
+        /*
+         * Verifica se a placa está sendo utilizada
+         * por outro veículo.
+         *
+         * A placa do próprio veículo é permitida.
+         */
+        Optional<Veiculo> veiculoComMesmaPlaca =
+                veiculoRepositorio.findByPlaca(
+                        dados.getPlaca()
+                );
+
+        if (veiculoComMesmaPlaca.isPresent()
+                && !veiculoComMesmaPlaca
+                        .get()
+                        .getId()
+                        .equals(veiculoAtual.getId())) {
+
+            throw new IllegalArgumentException(
+                    "Placa já cadastrada em outro veículo."
+            );
+        }
+
+        veiculoAtual.setNumero(dados.getNumero());
+        veiculoAtual.setPlaca(dados.getPlaca());
+        veiculoAtual.setMarca(dados.getMarca());
+        veiculoAtual.setTipo(dados.getTipo());
+
+        return veiculoRepositorio.save(veiculoAtual);
     }
 
+    private void normalizarDados(Veiculo veiculo) {
+
+        if (veiculo.getPlaca() != null) {
+            veiculo.setPlaca(
+                    veiculo.getPlaca()
+                            .trim()
+                            .toUpperCase()
+            );
+        }
+    }
 }

@@ -1,3 +1,4 @@
+
 const API = "http://localhost:8080/api/veiculo";
 const CHECKLIST_API = "http://localhost:8080/api/checklist";
 const USUARIO_API = "http://localhost:8080/api/usuario";
@@ -5,106 +6,100 @@ const USUARIO_API = "http://localhost:8080/api/usuario";
 const usuario = JSON.parse(localStorage.getItem("usuario"));
 const authHeader = localStorage.getItem("authHeader");
 
-// VALIDAÇÃO
 if (!usuario || !authHeader || usuario.funcao?.toUpperCase() !== "COORDENADOR") {
-    alert("Acesso negado!");
+    salvarMensagemTemporaria("Acesso negado.", "warning");
     localStorage.clear();
     window.location.href = "index.html";
 }
 
-// LOGOUT
 document.getElementById("logoutBtn").addEventListener("click", () => {
     localStorage.clear();
     window.location.href = "index.html";
 });
 
-// MÁSCARAS DOS INPUTS
 document.getElementById("numero").addEventListener("input", function () {
     this.value = this.value.replace(/\D/g, "").slice(0, 10);
+    limparErroCampo("numero");
 });
 
 document.getElementById("placa").addEventListener("input", function () {
-
     let v = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
-
-    if (v.length > 3 && v[3] !== "-") {
-        v = v.slice(0, 3) + "-" + v.slice(3);
-    }
-
+    if (v.length > 3 && v[3] !== "-") v = v.slice(0, 3) + "-" + v.slice(3);
     this.value = v.slice(0, 8);
+    limparErroCampo("placa");
 });
 
 document.getElementById("editNumero").addEventListener("input", function () {
     this.value = this.value.replace(/\D/g, "").slice(0, 10);
+    limparErroCampo("editNumero");
 });
 
 document.getElementById("editPlaca").addEventListener("input", function () {
-
     let v = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, "");
-
-    if (v.length > 3 && v[3] !== "-") {
-        v = v.slice(0, 3) + "-" + v.slice(3);
-    }
-
+    if (v.length > 3 && v[3] !== "-") v = v.slice(0, 3) + "-" + v.slice(3);
     this.value = v.slice(0, 8);
+    limparErroCampo("editPlaca");
 });
 
-// VALIDAÇÃO
-function validarVeiculo(numero, placa, marca, tipo) {
+function validarVeiculo(numero, placa, marca, tipo, prefixo = "") {
+    ["Numero", "Placa", "Marca", "Tipo"].forEach(sufixo => {
+        const id = prefixo ? `${prefixo}${sufixo}` : sufixo.toLowerCase();
+        limparErroCampo(id);
+    });
 
-    if (!/^\d+$/.test(numero) || parseInt(numero) <= 0) {
-        alert("Número inválido.");
-        return false;
-    }
+    let valido = true;
+    const idNumero = prefixo ? `${prefixo}Numero` : "numero";
+    const idPlaca = prefixo ? `${prefixo}Placa` : "placa";
+    const idMarca = prefixo ? `${prefixo}Marca` : "marca";
+    const idTipo = prefixo ? `${prefixo}Tipo` : "tipo";
 
-    if (numero.length > 10) {
-        alert("Número obrigatório: (máximo 10 dígitos).");
-        return false;
+    if (!/^\d+$/.test(numero) || Number(numero) <= 0) {
+        mostrarErroCampo(idNumero, "Informe um número inteiro e positivo.");
+        valido = false;
+    } else if (numero.length > 10) {
+        mostrarErroCampo(idNumero, "O número deve ter no máximo 10 dígitos.");
+        valido = false;
     }
 
     const placaAntiga = /^[A-Z]{3}-\d{4}$/;
     const placaMercosul = /^[A-Z]{3}-\d[A-Z]\d{2}$/;
+    const placaNormalizada = placa.trim().toUpperCase();
 
-    placa = placa.trim().toUpperCase();
-
-    if (!placaAntiga.test(placa) && !placaMercosul.test(placa)) {
-        alert("Placa inválida.");
-        return false;
+    if (!placaAntiga.test(placaNormalizada) && !placaMercosul.test(placaNormalizada)) {
+        mostrarErroCampo(idPlaca, "Use o formato AAA-1111 ou AAA-1A11.", !valido);
+        valido = false;
     }
 
-    if (!marca || !tipo) {
-        alert("Preencher todos os campos.");
-        return false;
+    if (!marca) {
+        mostrarErroCampo(idMarca, "Selecione uma marca.", !valido);
+        valido = false;
     }
 
-    return true;
+    if (!tipo) {
+        mostrarErroCampo(idTipo, "Selecione um tipo.", !valido);
+        valido = false;
+    }
+
+    return valido;
 }
 
-// DASHBOARD COMPLETO
 async function carregarDashboard() {
-
     try {
-
         const [resV, resC, resU] = await Promise.all([
-            fetch(`${API}/listar`, {
-                headers: { "Authorization": authHeader }
-            }),
-
-            fetch(`${CHECKLIST_API}/listar`, {
-                headers: { "Authorization": authHeader }
-            }),
-
-            fetch(`${USUARIO_API}/listar`, {
-                headers: { "Authorization": authHeader }
-            })
+            fetch(`${API}/listar`, { headers: { "Authorization": authHeader } }),
+            fetch(`${CHECKLIST_API}/listar`, { headers: { "Authorization": authHeader } }),
+            fetch(`${USUARIO_API}/listar`, { headers: { "Authorization": authHeader } })
         ]);
 
         if ([resV, resC, resU].some(r => r.status === 401 || r.status === 403)) {
-
-            alert("Sessão expirada!");
-
+            salvarMensagemTemporaria("Sua sessão expirou. Entre novamente.", "warning");
             localStorage.clear();
             window.location.href = "index.html";
+            return;
+        }
+
+        if (![resV, resC, resU].every(r => r.ok)) {
+            mostrarMensagemGeral("Não foi possível carregar todos os dados do dashboard.", "error");
             return;
         }
 
@@ -112,131 +107,82 @@ async function carregarDashboard() {
         const checklists = await resC.json();
         const usuarios = await resU.json();
 
-        // CONTADORES
         const checkPorVeiculo = {};
         const checkPorMotorista = {};
 
         checklists.forEach(c => {
-
             const numero = c.veiculo?.numero;
-
-            if (numero != null) {
-                checkPorVeiculo[numero] =
-                    (checkPorVeiculo[numero] || 0) + 1;
-            }
+            if (numero != null) checkPorVeiculo[numero] = (checkPorVeiculo[numero] || 0) + 1;
 
             const matricula = c.motorista?.matricula;
-
-            if (matricula) {
-                checkPorMotorista[matricula] =
-                    (checkPorMotorista[matricula] || 0) + 1;
-            }
+            if (matricula) checkPorMotorista[matricula] = (checkPorMotorista[matricula] || 0) + 1;
         });
 
-        const motoristas = usuarios.filter(
-            u => u.funcao?.toUpperCase() === "MOTORISTA"
-        );
+        const motoristas = usuarios.filter(u => u.funcao?.toUpperCase() === "MOTORISTA");
 
-        // CARDS
-        document.getElementById("totalVeiculos").textContent =
-            veiculos.length;
-        document.getElementById("totalChecklists").textContent =
-            checklists.length;
+        document.getElementById("totalVeiculos").textContent = veiculos.length;
+        document.getElementById("totalChecklists").textContent = checklists.length;
         document.getElementById("totalMotoristas").textContent =
-            motoristas.filter(
-                m => checkPorMotorista[m.matricula] > 0
-            ).length;
+            motoristas.filter(m => checkPorMotorista[m.matricula] > 0).length;
 
-        // TABELA VEÍCULOS
         const tbody = document.getElementById("veiculosTable");
-
         tbody.innerHTML = "";
+
         veiculos.forEach(v => {
-
             const tr = document.createElement("tr");
-
             tr.innerHTML = `
                 <td>${v.numero}</td>
                 <td>${v.placa}</td>
                 <td>${v.marca}</td>
                 <td>${v.tipo}</td>
-
                 <td>
-                    <button
-                        class="btn btn-warning btn-sm btn-editar"
+                    <button class="btn btn-warning btn-sm btn-editar"
                         data-numero="${v.numero}"
                         data-placa="${v.placa}"
                         data-marca="${v.marca}"
                         data-tipo="${v.tipo}">
                         Editar
                     </button>
-
-                    <button
-                        class="btn btn-danger btn-sm btn-deletar"
+                    <button class="btn btn-danger btn-sm btn-deletar"
                         data-numero="${v.numero}">
                         Excluir
                     </button>
-                </td>
-            `;
-
+                </td>`;
             tbody.appendChild(tr);
         });
 
-        // RANKING
         const rankingBody = document.getElementById("rankingTable");
         const ranking = motoristas
-            .map(m => ({
-                ...m,
-                total: checkPorMotorista[m.matricula] || 0
-            }))
+            .map(m => ({ ...m, total: checkPorMotorista[m.matricula] || 0 }))
             .sort((a, b) => b.total - a.total);
 
         rankingBody.innerHTML = "";
 
         if (ranking.length === 0) {
             rankingBody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="text-center text-muted">
-                        Nenhum motorista encontrado.
-                    </td>
-                </tr>
-            `;
-
+                <tr><td colspan="4" class="text-center text-muted">
+                    Nenhum motorista encontrado.
+                </td></tr>`;
         } else {
-
             const medalhas = ["🥇", "🥈", "🥉"];
-
             ranking.forEach((m, i) => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td>${medalhas[i] || (i + 1) + "º"}</td>
-                    <td>
-                        ${m.nome} ${m.sobrenome || ""}
-                    </td>
+                    <td>${medalhas[i] || `${i + 1}º`}</td>
+                    <td>${m.nome} ${m.sobrenome || ""}</td>
                     <td>${m.matricula}</td>
-                    <td>
-                        <span class="badge bg-success">
-                            ${m.total}
-                        </span>
-                    </td>
-                `;
-
+                    <td><span class="badge bg-success">${m.total}</span></td>`;
                 rankingBody.appendChild(tr);
             });
         }
 
     } catch (err) {
+        mostrarMensagemGeral("Não foi possível carregar o dashboard.", "error");
         console.error(err);
-        alert("Erro ao carregar dashboard!");
     }
 }
 
-carregarDashboard();
-
-// EVENTOS DA TABELA
-document.getElementById("veiculosTable")
-.addEventListener("click", function(e) {
-
+document.getElementById("veiculosTable").addEventListener("click", function (e) {
     const btnEditar = e.target.closest(".btn-editar");
     const btnDeletar = e.target.closest(".btn-deletar");
 
@@ -245,15 +191,12 @@ document.getElementById("veiculosTable")
         abrirModal(numero, placa, marca, tipo);
     }
 
-    if (btnDeletar) {
-        deletarVeiculo(btnDeletar.dataset.numero);
-    }
+    if (btnDeletar) deletarVeiculo(btnDeletar.dataset.numero);
 });
 
-// CADASTRAR
-document.getElementById("cadVeiculoForm")
-.addEventListener("submit", async function(e) {
+document.getElementById("cadVeiculoForm").addEventListener("submit", async function (e) {
     e.preventDefault();
+    limparMensagemGeral();
 
     const numero = document.getElementById("numero").value.trim();
     const placa = document.getElementById("placa").value.trim().toUpperCase();
@@ -262,111 +205,111 @@ document.getElementById("cadVeiculoForm")
 
     if (!validarVeiculo(numero, placa, marca, tipo)) return;
 
-    const data = {
-        numero: parseInt(numero),
-        placa,
-        marca,
-        tipo
-    };
+    try {
+        const res = await fetch(`${API}/cadastrar`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": authHeader
+            },
+            body: JSON.stringify({ numero: Number(numero), placa, marca, tipo })
+        });
 
-    const res = await fetch(`${API}/cadastrar`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": authHeader
-        },
-        body: JSON.stringify(data)
-    });
-
-    if (res.ok) {
-        alert("Veículo cadastrado!");
-        this.reset();
-        carregarDashboard();
-
-    } else {
-        alert(await res.text());
+        if (res.ok) {
+            mostrarMensagemGeral("Veículo cadastrado com sucesso.", "success", 5000);
+            this.reset();
+            carregarDashboard();
+        } else {
+            const erro = await res.text();
+            if (/placa/i.test(erro)) {
+                mostrarErroCampo("placa", erro);
+            } else if (/n[uú]mero|numero/i.test(erro)) {
+                mostrarErroCampo("numero", erro);
+            } else {
+                mostrarMensagemGeral(erro || "Não foi possível cadastrar o veículo.", "error");
+            }
+        }
+    } catch (err) {
+        mostrarMensagemGeral("Não foi possível conectar ao servidor.", "error");
+        console.error(err);
     }
 });
 
-// MODAL
 function abrirModal(numero, placa, marca, tipo) {
-
     document.getElementById("numeroOriginal").value = numero;
     document.getElementById("editNumero").value = numero;
     document.getElementById("editPlaca").value = placa;
     document.getElementById("editMarca").value = marca;
     document.getElementById("editTipo").value = tipo;
 
-    new bootstrap.Modal(
-        document.getElementById("editModal")
-    ).show();
+    ["editNumero", "editPlaca", "editMarca", "editTipo"]
+        .forEach(id => limparErroCampo(id));
+
+    new bootstrap.Modal(document.getElementById("editModal")).show();
 }
-// EDITAR
-document.getElementById("editVeiculoForm")
-.addEventListener("submit", async function(e) {
 
+document.getElementById("editVeiculoForm").addEventListener("submit", async function (e) {
     e.preventDefault();
+    limparMensagemGeral();
 
-    const numeroOriginal =
-        document.getElementById("numeroOriginal").value;
-    const numero =
-        document.getElementById("editNumero").value.trim();
-    const placa =
-        document.getElementById("editPlaca").value.trim().toUpperCase();
-    const marca =
-        document.getElementById("editMarca").value;
-    const tipo =
-        document.getElementById("editTipo").value;
+    const numeroOriginal = document.getElementById("numeroOriginal").value;
+    const numero = document.getElementById("editNumero").value.trim();
+    const placa = document.getElementById("editPlaca").value.trim().toUpperCase();
+    const marca = document.getElementById("editMarca").value;
+    const tipo = document.getElementById("editTipo").value;
 
-    if (!validarVeiculo(numero, placa, marca, tipo)) return;
-    const data = {
-        numero: parseInt(numero),
-        placa,
-        marca,
-        tipo
-    };
+    if (!validarVeiculo(numero, placa, marca, tipo, "edit")) return;
 
-    const res = await fetch(`${API}/atualizar/${numeroOriginal}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": authHeader
-        },
+    try {
+        const res = await fetch(`${API}/atualizar/${numeroOriginal}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": authHeader
+            },
+            body: JSON.stringify({ numero: Number(numero), placa, marca, tipo })
+        });
 
-        body: JSON.stringify(data)
-    });
-
-    if (res.ok) {
-
-        alert("Veículo atualizado!");
-        bootstrap.Modal
-            .getInstance(document.getElementById("editModal"))
-            .hide();
-
-        carregarDashboard();
-
-    } else {
-        alert(await res.text());
+        if (res.ok) {
+            bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+            mostrarMensagemGeral("Veículo atualizado com sucesso.", "success", 5000);
+            carregarDashboard();
+        } else {
+            const erro = await res.text();
+            if (/placa/i.test(erro)) {
+                mostrarErroCampo("editPlaca", erro);
+            } else if (/n[uú]mero|numero/i.test(erro)) {
+                mostrarErroCampo("editNumero", erro);
+            } else {
+                mostrarMensagemGeral(erro || "Não foi possível atualizar o veículo.", "error");
+            }
+        }
+    } catch (err) {
+        mostrarMensagemGeral("Não foi possível conectar ao servidor.", "error");
+        console.error(err);
     }
 });
 
-// DELETAR
 async function deletarVeiculo(numero) {
-
     if (!confirm(`Excluir veículo Nº ${numero}?`)) return;
-    const res = await fetch(`${API}/deletar/${numero}`, {
-        method: "DELETE",
-        headers: {
-            "Authorization": authHeader
+
+    try {
+        const res = await fetch(`${API}/deletar/${numero}`, {
+            method: "DELETE",
+            headers: { "Authorization": authHeader }
+        });
+
+        if (res.ok) {
+            mostrarMensagemGeral("Veículo excluído com sucesso.", "success", 5000);
+            carregarDashboard();
+        } else {
+            const erro = await res.text();
+            mostrarMensagemGeral(erro || "Não foi possível excluir o veículo.", "error");
         }
-    });
-
-    if (res.ok) {
-        alert("Veículo excluído!");
-
-        carregarDashboard();
-
-    } else {
-        alert(await res.text());
+    } catch (err) {
+        mostrarMensagemGeral("Não foi possível conectar ao servidor.", "error");
+        console.error(err);
     }
 }
+
+carregarDashboard();

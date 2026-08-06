@@ -1,355 +1,132 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1">
 
-  <title>Dashboard - Coordenador</title>
+  <title>Dashboard — Coordenador</title>
 
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  >
+    rel="stylesheet">
 
-  <style>
-    body {
-      background-color: #f0f2f5;
-    }
+  <link rel="stylesheet" href="css/tema.css">
+  <link rel="stylesheet" href="css/geral.css">
+  <link rel="stylesheet" href="css/listar.css">
 
-    .topbar {
-      background: #1a1a2e;
-      color: #fff;
-      padding: 14px 28px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 28px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-
-    .topbar h1 {
-      font-size: 1.1rem;
-      margin: 0;
-      font-weight: 600;
-    }
-
-    .topbar .actions {
-      display: flex;
-      gap: 8px;
-      margin-left: auto;
-    }
-
-    .card {
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-      margin-bottom: 24px;
-    }
-
-    .card-header-bar {
-      background: #1a1a2e;
-      color: #fff;
-      border-radius: 12px 12px 0 0;
-      padding: 13px 20px;
-      font-weight: 600;
-      font-size: .95rem;
-    }
-
-    .table th {
-      font-size: .8rem;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
-
-    .table td {
-      font-size: .88rem;
-      vertical-align: middle;
-    }
-
-    .stat-card {
-      border: none;
-      border-radius: 14px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-      padding: 22px 28px;
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      background: #fff;
-    }
-
-    .stat-icon {
-      font-size: 2.4rem;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .stat-icon.blue {
-      background: #e8f0fe;
-    }
-
-    .stat-icon.green {
-      background: #e6f9f0;
-    }
-
-    .stat-icon.orange {
-      background: #fff3e0;
-    }
-
-    .stat-label {
-      font-size: .8rem;
-      color: #6c757d;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
-
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1.1;
-      color: #1a1a2e;
-    }
-
-    .stat-sub {
-      font-size: .82rem;
-      color: #6c757d;
-      margin-top: 2px;
-    }
-  </style>
 </head>
 
 <body>
 
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <span style="font-size:1.5rem">🗂️</span>
+  <header class="topbar">
 
-    <h1>Dashboard — Coordenador</h1>
+    <h1>
+    Coordenador
+    </h1>
 
     <div class="actions">
-      <button id="logoutBtn" class="btn btn-danger btn-sm">
+
+      <a
+        href="usuarios.html"
+        class="btn btn-light btn-sm">
+        Usuários
+      </a>
+
+      <button
+        id="logoutBtn"
+        type="button"
+        class="btn btn-outline-light btn-sm">
         Sair
       </button>
-    </div>
-  </div>
-
-  <div class="container pb-5">
-
-    <!-- CARDS -->
-    <div class="row g-3 mb-4">
-
-      <div class="col-md-4">
-        <div class="stat-card">
-
-          <div class="stat-icon blue">
-            🚌
-          </div>
-
-          <div>
-            <div class="stat-label">
-              Veículos Cadastrados
-            </div>
-
-            <div class="stat-value" id="totalVeiculos">
-              —
-            </div>
-
-            <div class="stat-sub">
-              na frota
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="stat-card">
-
-          <div class="stat-icon green">
-            📋
-          </div>
-
-          <div>
-            <div class="stat-label">
-              Checklists Registrados
-            </div>
-
-            <div class="stat-value" id="totalChecklists">
-              —
-            </div>
-
-            <div class="stat-sub">
-              por todos os motoristas
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="stat-card">
-
-          <div class="stat-icon orange">
-            👷
-          </div>
-
-          <div>
-            <div class="stat-label">
-              Motoristas Ativos
-            </div>
-
-            <div class="stat-value" id="totalMotoristas">
-              —
-            </div>
-
-            <div class="stat-sub">
-              com checklists registrados
-            </div>
-          </div>
-
-        </div>
-      </div>
 
     </div>
 
-    <!-- FROTA -->
-    <div class="card">
+  </header>
+
+  <main class="container pb-5">
+
+    <div
+      id="mensagemGeral"
+      class="alert"
+      role="alert">
+    </div>
+
+    <section class="row g-3 mb-4">
+
+      <div class="col-md-4">
+
+        <article class="stat-card">
+
+          <div class="stat-label">
+            Veículos cadastrados
+          </div>
+
+          <div
+            class="stat-value"
+            id="totalVeiculos">
+            —
+          </div>
+
+          <div class="stat-sub">
+            Veículos registrados na frota
+          </div>
+
+        </article>
+
+      </div>
+
+      <div class="col-md-4">
+
+        <article class="stat-card">
+
+          <div class="stat-label">
+            Checklists registrados
+          </div>
+
+          <div
+            class="stat-value"
+            id="totalChecklists">
+            —
+          </div>
+
+          <div class="stat-sub">
+            Registros realizados pelos motoristas
+          </div>
+
+        </article>
+
+      </div>
+
+      <div class="col-md-4">
+
+        <article class="stat-card">
+
+          <div class="stat-label">
+            Motoristas ativos
+          </div>
+
+          <div
+            class="stat-value"
+            id="totalMotoristas">
+            —
+          </div>
+
+          <div class="stat-sub">
+            Motoristas com checklists registrados
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+    <section class="card">
 
       <div class="card-header-bar">
-        🚌 Frota de Veículos
-      </div>
-
-      <div class="card-body p-0">
-
-        <div class="table-responsive">
-
-          <table class="table table-striped table-bordered mb-0">
-
-            <thead class="table-dark">
-              <tr>
-                <th>Número</th>
-                <th>Placa</th>
-                <th>Marca</th>
-                <th>Tipo</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-
-            <tbody id="veiculosTable"></tbody>
-
-          </table>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- CADASTRAR -->
-    <div class="card">
-
-      <div class="card-header-bar"> ➕ Cadastrar Novo Veículo
-      </div>
-      <div class="card-body">
-        <form id="cadVeiculoForm">
-          <div class="row g-3">
-
-            <!-- NÚMERO -->
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">
-                Número
-              </label>
-              <input
-                type="text"
-                id="numero"
-                class="form-control"
-                placeholder="Ex: 101"
-                required
-                maxlength="10"
-                inputmode="numeric"
-                pattern="[0-9]+"
-              >
-              <div class="form-text">
-                Apenas números positivos (máx. 10 dígitos).
-              </div>
-            </div>
-
-            <!-- PLACA -->
-            <div class="col-md-3">
-
-              <label class="form-label fw-semibold">
-                Placa
-              </label>
-              <input
-                type="text"
-                id="placa"
-                class="form-control"
-                placeholder="Ex: ABC-1234"
-                required
-                maxlength="8"
-                style="text-transform: uppercase;"
-              >
-
-              <div class="form-text">
-                Formatos aceitos: AAA-1111 ou AAA-1A11.
-              </div>
-
-            </div>
-
-            <!-- MARCA -->
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">
-                Marca
-              </label>
-
-              <select id="marca" class="form-select" required>
-                <option value="">Selecione</option>
-                <option>FIAT</option>
-                <option>MERCEDES</option>
-                <option>IVECO</option>
-                <option>RENAULT</option>
-                <option>VOLKSWAGEN</option>
-                <option>CHEVROLET</option>
-                <option>TOYOTA</option>
-              </select>
-
-            </div>
-
-            <div class="col-md-3">
-                <label class="form-label fw-semibold">
-                Tipo
-              </label>
-
-              <select id="tipo" class="form-select" required>
-                <option value="">Selecione</option>
-                <option>KOMBI</option>
-                <option>DOBLO</option>
-                <option>VAN</option>
-                <option>MICROONIBUS</option>
-                <option>ONIBUS</option>
-                <option>PARTICULAR</option>
-              </select>
-
-            </div>
-
-          </div>
-
-          <button type="submit" class="btn btn-success mt-3 px-4">
-            Cadastrar Veículo
-          </button>
-
-        </form>
-
-      </div>
-    </div>
-
-    <!-- RANKING -->
-    <div class="card">
-
-      <div class="card-header-bar">
-        🏆 Ranking de Motoristas
+        Frota de veículos
       </div>
 
       <div class="card-body p-0">
@@ -358,62 +135,276 @@
 
           <table class="table table-hover mb-0">
 
-            <thead class="table-dark">
+            <thead class="table-light">
+
+              <tr>
+                <th>Número</th>
+                <th>Placa</th>
+                <th>Marca</th>
+                <th>Tipo</th>
+                <th>Ações</th>
+              </tr>
+
+            </thead>
+
+            <tbody id="veiculosTable">
+
+              <tr>
+
+                <td
+                  colspan="5"
+                  class="text-center text-muted py-4">
+                  Carregando veículos...
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <div class="card-header-bar">
+        Cadastrar novo veículo
+      </div>
+
+      <div class="card-body">
+
+        <form
+          id="cadVeiculoForm"
+          novalidate>
+
+          <div class="row g-3">
+
+            <div class="col-12 col-md-6 col-lg-3">
+
+              <label
+                for="numero"
+                class="form-label">
+                Número
+              </label>
+
+              <input
+                type="text"
+                id="numero"
+                class="form-control"
+                placeholder="Ex.: 101"
+                maxlength="10"
+                inputmode="numeric">
+
+              <small
+                id="numeroErro"
+                class="erro-campo">
+              </small>
+
+              <div class="form-text">
+                Apenas números positivos, com no máximo 10 dígitos.
+              </div>
+
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+
+              <label
+                for="placa"
+                class="form-label">
+                Placa
+              </label>
+
+              <input
+                type="text"
+                id="placa"
+                class="form-control text-uppercase"
+                placeholder="Ex.: ABC-1234"
+                maxlength="8">
+
+              <small
+                id="placaErro"
+                class="erro-campo">
+              </small>
+
+              <div class="form-text">
+                Formatos permitidos: AAA-1111 ou AAA-1A11.
+              </div>
+
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+
+              <label
+                for="marca"
+                class="form-label">
+                Marca
+              </label>
+
+              <select
+                id="marca"
+                class="form-select">
+
+                <option value="">
+                  Selecione uma marca
+                </option>
+
+                <option value="FIAT">FIAT</option>
+                <option value="MERCEDES">MERCEDES</option>
+                <option value="IVECO">IVECO</option>
+                <option value="RENAULT">RENAULT</option>
+                <option value="VOLKSWAGEN">VOLKSWAGEN</option>
+                <option value="CHEVROLET">CHEVROLET</option>
+                <option value="TOYOTA">TOYOTA</option>
+
+              </select>
+
+              <small
+                id="marcaErro"
+                class="erro-campo">
+              </small>
+
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+
+              <label
+                for="tipo"
+                class="form-label">
+                Tipo
+              </label>
+
+              <select
+                id="tipo"
+                class="form-select">
+
+                <option value="">
+                  Selecione um tipo
+                </option>
+
+                <option value="KOMBI">KOMBI</option>
+                <option value="DOBLO">DOBLO</option>
+                <option value="VAN">VAN</option>
+                <option value="MICROONIBUS">MICRO-ÔNIBUS</option>
+                <option value="ONIBUS">ÔNIBUS</option>
+                <option value="PARTICULAR">PARTICULAR</option>
+
+              </select>
+
+              <small
+                id="tipoErro"
+                class="erro-campo">
+              </small>
+
+            </div>
+
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary mt-4 px-4">
+            Cadastrar veículo
+          </button>
+
+        </form>
+
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <div class="card-header-bar">
+        Ranking de motoristas
+      </div>
+
+      <div class="card-body p-0">
+
+        <div class="table-responsive">
+
+          <table class="table table-hover mb-0">
+
+            <thead class="table-light">
+
               <tr>
                 <th>Posição</th>
                 <th>Motorista</th>
                 <th>Matrícula</th>
                 <th>Checklists</th>
               </tr>
+
             </thead>
 
             <tbody id="rankingTable">
+
               <tr>
-                <td colspan="4" class="text-center text-muted py-3">
-                  Carregando...
+
+                <td
+                  colspan="4"
+                  class="text-center text-muted py-4">
+                  Carregando ranking...
                 </td>
+
               </tr>
+
             </tbody>
 
           </table>
 
         </div>
+
       </div>
-    </div>
 
-  </div>
+    </section>
 
-  <!-- MODAL EDITAR -->
-  <div class="modal fade" id="editModal" tabindex="-1">
+  </main>
 
-    <div class="modal-dialog">
+  <div
+    class="modal fade"
+    id="editModal"
+    tabindex="-1"
+    aria-labelledby="editModalLabel"
+    aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
 
       <div class="modal-content">
 
-        <div class="modal-header bg-dark text-white">
+        <div class="modal-header">
 
-          <h5 class="modal-title">
-            ✏️ Editar Veículo
-          </h5>
+          <h2
+            class="modal-title h5"
+            id="editModalLabel">
+            Editar veículo
+          </h2>
 
           <button
             type="button"
-            class="btn-close btn-close-white"
-            data-bs-dismiss="modal">
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Fechar">
           </button>
 
         </div>
 
         <div class="modal-body">
 
-          <form id="editVeiculoForm">
+          <form
+            id="editVeiculoForm"
+            novalidate>
 
-            <input type="hidden" id="numeroOriginal">
+            <input
+              type="hidden"
+              id="numeroOriginal">
 
-            <!-- NÚMERO -->
             <div class="mb-3">
 
-              <label class="form-label fw-semibold">
+              <label
+                for="editNumero"
+                class="form-label">
                 Número
               </label>
 
@@ -421,89 +412,128 @@
                 type="text"
                 id="editNumero"
                 class="form-control"
-                required
                 maxlength="10"
-                inputmode="numeric"
-                pattern="[0-9]+"
-              >
+                inputmode="numeric">
 
-              <div class="form-text">
-                Apenas números positivos (máx. 10 dígitos).
-              </div>
+              <small
+                id="editNumeroErro"
+                class="erro-campo">
+              </small>
 
             </div>
 
-            <!-- PLACA -->
             <div class="mb-3">
 
-              <label class="form-label fw-semibold">
+              <label
+                for="editPlaca"
+                class="form-label">
                 Placa
               </label>
 
               <input
                 type="text"
                 id="editPlaca"
-                class="form-control"
-                required
-                maxlength="8"
-                style="text-transform: uppercase;"
-              >
+                class="form-control text-uppercase"
+                maxlength="8">
 
-              <div class="form-text">
-                Formatos aceitos: AAA-1111 ou AAA-1A11.
-              </div>
+              <small
+                id="editPlacaErro"
+                class="erro-campo">
+              </small>
 
             </div>
 
-            <!-- MARCA -->
             <div class="mb-3">
 
-              <label class="form-label fw-semibold">
+              <label
+                for="editMarca"
+                class="form-label">
                 Marca
               </label>
 
-              <select id="editMarca" class="form-select" required>
-                <option>FIAT</option>
-                <option>MERCEDES</option>
-                <option>IVECO</option>
-                <option>RENAULT</option>
-                <option>VOLKSWAGEN</option>
-                <option>CHEVROLET</option>
-                <option>TOYOTA</option>
+              <select
+                id="editMarca"
+                class="form-select">
+
+                <option value="">Selecione uma marca</option>
+                <option value="FIAT">FIAT</option>
+                <option value="MERCEDES">MERCEDES</option>
+                <option value="IVECO">IVECO</option>
+                <option value="RENAULT">RENAULT</option>
+                <option value="VOLKSWAGEN">VOLKSWAGEN</option>
+                <option value="CHEVROLET">CHEVROLET</option>
+                <option value="TOYOTA">TOYOTA</option>
+
               </select>
+
+              <small
+                id="editMarcaErro"
+                class="erro-campo">
+              </small>
 
             </div>
 
-            <!-- TIPO -->
-            <div class="mb-3">
+            <div class="mb-4">
 
-              <label class="form-label fw-semibold">
+              <label
+                for="editTipo"
+                class="form-label">
                 Tipo
               </label>
 
-              <select id="editTipo" class="form-select" required>
-                <option>KOMBI</option>
-                <option>DOBLO</option>
-                <option>VAN</option>
-                <option>MICROONIBUS</option>
-                <option>ONIBUS</option>
-                <option>PARTICULAR</option>
+              <select
+                id="editTipo"
+                class="form-select">
+
+                <option value="">Selecione um tipo</option>
+                <option value="KOMBI">KOMBI</option>
+                <option value="DOBLO">DOBLO</option>
+                <option value="VAN">VAN</option>
+                <option value="MICROONIBUS">MICRO-ÔNIBUS</option>
+                <option value="ONIBUS">ÔNIBUS</option>
+                <option value="PARTICULAR">PARTICULAR</option>
+
               </select>
+
+              <small
+                id="editTipoErro"
+                class="erro-campo">
+              </small>
 
             </div>
 
-            <button type="submit" class="btn btn-primary px-4">
-              Salvar Alterações
-            </button>
+            <div class="d-flex justify-content-end gap-2">
+
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                data-bs-dismiss="modal">
+                Cancelar
+              </button>
+
+              <button
+                type="submit"
+                class="btn btn-primary px-4">
+                Salvar alterações
+              </button>
+
+            </div>
 
           </form>
 
         </div>
+
       </div>
+
     </div>
+
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js">
+  </script>
+
+  <script src="js/mensagens.js"></script>
   <script src="js/veiculos.js"></script>
 
 </body>

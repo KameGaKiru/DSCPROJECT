@@ -1,25 +1,20 @@
-//   GET  /api/checklist/listar
-//   PUT  /api/checklist/solucao/{id}/{matriculaMecanico}
 
 const CHECKLIST_API = "http://localhost:8080/api/checklist";
 
-// SESSÃO
-const usuario    = JSON.parse(localStorage.getItem("usuario"));
+const usuario = JSON.parse(localStorage.getItem("usuario"));
 const authHeader = localStorage.getItem("authHeader");
 
 if (!usuario || !authHeader || usuario.funcao?.toUpperCase() !== "MECANICO") {
-    alert("Acesso negado!");
+    salvarMensagemTemporaria("Acesso negado.", "warning");
     localStorage.clear();
     window.location.href = "index.html";
 }
 
-// LOGOUT
 document.getElementById("logoutBtn").addEventListener("click", () => {
     localStorage.clear();
     window.location.href = "index.html";
 });
 
-// LISTAR CHECKLISTS
 async function listarChecklists() {
     const tbody = document.getElementById("checklistTable");
     tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Carregando...</td></tr>`;
@@ -30,87 +25,90 @@ async function listarChecklists() {
         });
 
         if (res.status === 401 || res.status === 403) {
-            alert("Sessão expirada!");
+            salvarMensagemTemporaria("Sua sessão expirou. Entre novamente.", "warning");
             localStorage.clear();
             window.location.href = "index.html";
             return;
         }
 
+        if (!res.ok) {
+            mostrarMensagemGeral("Não foi possível carregar os checklists.", "error");
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Não foi possível carregar os dados.</td></tr>`;
+            return;
+        }
+
         const checklists = await res.json();
 
-        // Contadores para os cards (pendentes são os que tem checklist menor que 7 intens ok)
-        const total      = checklists.length;
+        const total = checklists.length;
         const resolvidos = checklists.filter(c => c.solucaoMecanico).length;
-        const pendentes  = checklists.filter(c => {
+        const pendentes = checklists.filter(c => {
             const itensOk = [
                 c.faroisDianteiros, c.setasDianteiras, c.faroisTraseiros,
-                c.setasTraseiras,   c.luzesFreio,      c.nivelOleo, c.nivelAgua
+                c.setasTraseiras, c.luzesFreio, c.nivelOleo, c.nivelAgua
             ].filter(Boolean).length;
             return itensOk < 7;
         }).length;
 
-        document.getElementById("totalChecklists").textContent  = total;
+        document.getElementById("totalChecklists").textContent = total;
         document.getElementById("checklistsResolvidos").textContent = resolvidos;
-        document.getElementById("checklistsPendentes").textContent  = pendentes;
+        document.getElementById("checklistsPendentes").textContent = pendentes;
 
         if (checklists.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Nenhum checklist registrado ainda.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Nenhum checklist registrado.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = "";
-        checklists.forEach(c => {
-            const dataFormatada = c.criadoEm
-                ? new Date(c.criadoEm).toLocaleString("pt-BR")
-                : "-";
 
+        checklists.forEach(c => {
             const badgeTipo = c.tipo === "ENTRADA"
                 ? `<span class="badge bg-success">ENTRADA</span>`
                 : `<span class="badge bg-warning text-dark">SAÍDA</span>`;
 
-            const temProblema = !c.faroisDianteiros || !c.setasDianteiras || !c.faroisTraseiros
-                             || !c.setasTraseiras   || !c.luzesFreio      || !c.nivelOleo
-                             || !c.nivelAgua;
+            const temProblema =
+                !c.faroisDianteiros || !c.setasDianteiras || !c.faroisTraseiros ||
+                !c.setasTraseiras || !c.luzesFreio || !c.nivelOleo || !c.nivelAgua;
 
             const itensOk = [
                 c.faroisDianteiros, c.setasDianteiras, c.faroisTraseiros,
-                c.setasTraseiras,   c.luzesFreio,      c.nivelOleo, c.nivelAgua
+                c.setasTraseiras, c.luzesFreio, c.nivelOleo, c.nivelAgua
             ].filter(Boolean).length;
 
             const badgeItens = itensOk === 7
                 ? `<span class="badge bg-success">${itensOk}/7 OK</span>`
                 : `<span class="badge bg-danger">${itensOk}/7 OK</span>`;
 
-            // Solução
             let solucaoCell;
+
             if (c.solucaoMecanico) {
                 const resolvidoEm = c.resolvidoEm
                     ? new Date(c.resolvidoEm).toLocaleString("pt-BR")
                     : "";
+
                 solucaoCell = `
-                    <div class="text-success fw-semibold small">✅ Resolvido</div>
+                    <div class="text-success fw-semibold small">Resolvido</div>
                     <div class="text-muted small">${c.solucaoMecanico}</div>
-                    <div class="text-muted" style="font-size:0.75rem">${resolvidoEm}</div>`;
+                    <div class="text-muted" style="font-size:.75rem">${resolvidoEm}</div>`;
             } else {
                 solucaoCell = `<span class="text-muted fst-italic small">Sem solução</span>`;
             }
 
-            // Botão confirmar solução 
             let btnSolucao = "";
 
             if (temProblema) {
                 btnSolucao = c.solucaoMecanico
                     ? `<button class="btn btn-outline-success btn-sm"
-                            onclick="abrirModalSolucao(${c.id}, \`${(c.solucaoMecanico || "").replace(/`/g, "'")}\`)">
-                             Editar
-                    </button>`
+                        onclick="abrirModalSolucao(${c.id}, \`${(c.solucaoMecanico || "").replace(/`/g, "'")}\`)">
+                        Editar
+                       </button>`
                     : `<button class="btn btn-warning btn-sm"
-                            onclick="abrirModalSolucao(${c.id}, '')"> Confirmar Solução
-                    </button>`;
+                        onclick="abrirModalSolucao(${c.id}, '')">
+                        Confirmar solução
+                       </button>`;
             }
 
             tbody.innerHTML += `
-                <tr class="${c.solucaoMecanico ? '' : (temProblema ? 'table-danger' : '')}">
+                <tr class="${c.solucaoMecanico ? "" : (temProblema ? "table-danger" : "")}">
                     <td>${badgeTipo}</td>
                     <td>Nº ${c.veiculo?.numero ?? "?"} — ${c.veiculo?.placa ?? ""}</td>
                     <td>${c.motorista?.nome ?? ""} ${c.motorista?.sobrenome ?? ""}</td>
@@ -119,59 +117,59 @@ async function listarChecklists() {
                     <td>${solucaoCell}</td>
                     <td>
                         ${btnSolucao}
-                        <button class="btn btn-secondary btn-sm ${temProblema ? 'mt-1' : ''}"
-                            onclick="irParaChat()"> Chat
+                        <button class="btn btn-secondary btn-sm ${temProblema ? "mt-1" : ""}"
+                            onclick="irParaChat(${c.id}, '${c.motorista?.matricula ?? ""}')">
+                            Chat
                         </button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         });
 
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Falha na conexão.</td></tr>`;
-        console.error("Erro ao listar checklists:", err);
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Falha na conexão.</td></tr>`;
+        mostrarMensagemGeral("Não foi possível conectar ao servidor.", "error");
+        console.error(err);
     }
 }
 
-        // MODAL DE SOLUÇÃO
-        function abrirModalSolucao(checklistId, solucaoAtual) {
-            document.getElementById("checklistIdSolucao").value = checklistId;
-            document.getElementById("solucaoMecanico").value    = solucaoAtual;
-            document.getElementById("modalSolucaoLabel").textContent =
-                solucaoAtual ? "Editar Solução" : "Confirmar Solução";
+function abrirModalSolucao(checklistId, solucaoAtual) {
+    document.getElementById("checklistIdSolucao").value = checklistId;
+    document.getElementById("solucaoMecanico").value = solucaoAtual;
+    document.getElementById("modalSolucaoLabel").textContent =
+        solucaoAtual ? "Editar solução" : "Confirmar solução";
 
-            // Atualiza o contador ao abrir o modal
-            const textarea  = document.getElementById("solucaoMecanico");
-            const contador  = document.getElementById("contadorSolucao");
-            contador.textContent = solucaoAtual.length;
+    limparErroCampo("solucaoMecanico");
 
-            // Listener para atualizar em tempo real
-            textarea.oninput = () => {
-                contador.textContent = textarea.value.length;
-            };
+    const textarea = document.getElementById("solucaoMecanico");
+    const contador = document.getElementById("contadorSolucao");
 
-            new bootstrap.Modal(document.getElementById("modalSolucao")).show();
-        }
+    contador.textContent = solucaoAtual.length;
+    textarea.oninput = () => {
+        contador.textContent = textarea.value.length;
+        if (textarea.value.trim()) limparErroCampo("solucaoMecanico");
+    };
 
-// SALVAR SOLUÇÃO
-// PUT /api/checklist/solucao/{id}/{matriculaMecanico}
-document.getElementById("formSolucao").addEventListener("submit", async function(e) {
+    new bootstrap.Modal(document.getElementById("modalSolucao")).show();
+}
+
+document.getElementById("formSolucao").addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const id      = document.getElementById("checklistIdSolucao").value;
+    limparErroCampo("solucaoMecanico");
+    limparMensagemGeral();
+
+    const id = document.getElementById("checklistIdSolucao").value;
     const solucao = document.getElementById("solucaoMecanico").value.trim();
 
-        // Deve estar preenchido
-        if (!solucao) {
-            alert("Descreva uma solução!");
-            return;
-        }
+    if (!solucao) {
+        mostrarErroCampo("solucaoMecanico", "Descreva a solução.");
+        return;
+    }
 
-        // Deve conter ao menos uma letra
-        if (!/[a-zA-ZÀ-ÿ]/.test(solucao)) {
-            alert("Descreva uma solução válida! (deve conter ao menos uma letra)");
-            return;
-        }
+    if (!/[a-zA-ZÀ-ÿ]/.test(solucao)) {
+        mostrarErroCampo("solucaoMecanico", "A solução deve conter ao menos uma letra.");
+        return;
+    }
 
     try {
         const res = await fetch(
@@ -187,7 +185,7 @@ document.getElementById("formSolucao").addEventListener("submit", async function
         );
 
         if (res.status === 401 || res.status === 403) {
-            alert("Sessão expirada!");
+            salvarMensagemTemporaria("Sua sessão expirou. Entre novamente.", "warning");
             localStorage.clear();
             window.location.href = "index.html";
             return;
@@ -195,25 +193,31 @@ document.getElementById("formSolucao").addEventListener("submit", async function
 
         if (res.ok) {
             bootstrap.Modal.getInstance(document.getElementById("modalSolucao")).hide();
-            alert("Solução registrada com sucesso!");
+            mostrarMensagemGeral("Solução registrada com sucesso.", "success", 5000);
             listarChecklists();
         } else {
             const erro = await res.text();
-            alert("Erro ao registrar solução:\n" + erro);
+            mostrarMensagemGeral(`Não foi possível registrar a solução. ${erro}`, "error");
         }
 
     } catch (err) {
-        alert("Erro de conexão!");
+        mostrarMensagemGeral("Não foi possível conectar ao servidor.", "error");
         console.error(err);
     }
 });
 
+function irParaChat(checklistId, matriculaMotorista) {
+    if (!checklistId || !matriculaMotorista) {
+        mostrarMensagemGeral("Não foi possível identificar o checklist ou o motorista.", "error");
+        return;
+    }
 
-// CHAT
-function irParaChat() {
-    window.location.href = "chat.html"; 
+    const params = new URLSearchParams({
+        checklistId: String(checklistId),
+        motorista: matriculaMotorista
+    });
+
+    window.location.href = `chat.html?${params.toString()}`;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    listarChecklists();
-});
+document.addEventListener("DOMContentLoaded", listarChecklists);

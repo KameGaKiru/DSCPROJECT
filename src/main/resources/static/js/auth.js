@@ -1,15 +1,31 @@
+
 const USUARIO_API = "http://localhost:8080/api/usuario";
 
-// LOGIN
+function limparErrosAutenticacao() {
+    ["matricula", "senha", "nome", "sobrenome", "funcao"]
+        .forEach(id => limparErroCampo(id));
+    limparMensagemGeral();
+}
+
 async function login() {
+    limparErrosAutenticacao();
 
     const matricula = document.getElementById("matricula").value.trim();
     const senha = document.getElementById("senha").value.replace(/\s/g, "");
-    
-    if (!matricula || !senha) {
-        alert("Preencha os campos!");
-        return;
+
+    let valido = true;
+
+    if (!matricula) {
+        mostrarErroCampo("matricula", "Informe a matrícula.");
+        valido = false;
     }
+
+    if (!senha) {
+        mostrarErroCampo("senha", "Informe a senha.", !matricula);
+        valido = false;
+    }
+
+    if (!valido) return;
 
     try {
         const res = await fetch(`${USUARIO_API}/login`, {
@@ -19,11 +35,13 @@ async function login() {
         });
 
         if (!res.ok) {
-            alert("Dados inválidos!");
+            mostrarErroCampo("matricula", "Matrícula ou senha inválidas.", false);
+            mostrarErroCampo("senha", "Confira suas credenciais.");
             return;
         }
 
         const dados = await res.json();
+
         localStorage.setItem("authHeader", dados.authHeader);
         localStorage.setItem("usuario", JSON.stringify(dados.usuario));
 
@@ -36,40 +54,52 @@ async function login() {
         } else if (funcao === "MECANICO") {
             window.location.href = "dashboard_mecanico.html";
         } else {
-            alert("Função não reconhecida: " + funcao);
+            mostrarMensagemGeral(`Função não reconhecida: ${funcao ?? "não informada"}.`, "error");
         }
 
     } catch (err) {
-        alert("Erro de conexão!");
+        mostrarMensagemGeral("Não foi possível conectar ao servidor. Tente novamente.", "error");
         console.error(err);
     }
 }
 
-// REGISTRAR 
 async function registrar() {
+    limparErrosAutenticacao();
 
     const matricula = document.getElementById("matricula").value.trim();
-    const nome      = document.getElementById("nome").value.replace(/\s/g, "").trim();
+    const nome = document.getElementById("nome").value.replace(/\s/g, "").trim();
     const sobrenome = document.getElementById("sobrenome").value.replace(/\s/g, "").trim();
-    const senha     = document.getElementById("senha").value.replace(/\s/g, "");
-    const funcao    = document.getElementById("funcao").value;
+    const senha = document.getElementById("senha").value.replace(/\s/g, "");
+    const funcao = document.getElementById("funcao").value;
+
+    let valido = true;
 
     if (!/^\d+$/.test(matricula) || matricula.length > 12) {
-        alert("Matrícula obrigatória: (máximo 12 dígitos).");
-        return;
+        mostrarErroCampo("matricula", "Informe uma matrícula numérica com no máximo 12 dígitos.");
+        valido = false;
     }
+
     if (!nome || nome.length > 60) {
-        alert("Nome obrigatório: (máximo 60 caracteres).");
-        return;
+        mostrarErroCampo("nome", "Informe o nome com no máximo 60 caracteres.", !valido);
+        valido = false;
     }
+
     if (!sobrenome || sobrenome.length > 60) {
-        alert("Sobrenome obrigatório: (máximo 60 caracteres).");
-        return;
+        mostrarErroCampo("sobrenome", "Informe o sobrenome com no máximo 60 caracteres.", !valido);
+        valido = false;
     }
+
     if (senha.length < 6 || senha.length > 20) {
-        alert("A senha deve ter: (6 a 20 caracteres).");
-        return;
+        mostrarErroCampo("senha", "A senha deve ter entre 6 e 20 caracteres.", !valido);
+        valido = false;
     }
+
+    if (!funcao) {
+        mostrarErroCampo("funcao", "Selecione uma função.", !valido);
+        valido = false;
+    }
+
+    if (!valido) return;
 
     try {
         const res = await fetch(`${USUARIO_API}/cadastrar`, {
@@ -79,14 +109,72 @@ async function registrar() {
         });
 
         if (res.ok) {
-            alert("Usuário registrado com sucesso!");
+            salvarMensagemTemporaria("Usuário registrado com sucesso.", "success");
             window.location.href = "index.html";
-        } else {
-            const erro = await res.text();
-            alert("Erro ao registrar: " + erro);
+            return;
         }
+
+        const erro = await res.text();
+
+        if (/matr[ií]cula|duplic|cadastrad/i.test(erro)) {
+            mostrarErroCampo("matricula", "Esta matrícula já está cadastrada.");
+        } else {
+            mostrarMensagemGeral(`Não foi possível registrar o usuário. ${erro}`, "error");
+        }
+
     } catch (err) {
-        alert("Erro de conexão!");
+        mostrarMensagemGeral("Não foi possível conectar ao servidor. Tente novamente.", "error");
         console.error(err);
     }
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const matricula = document.getElementById("matricula");
+    const senha = document.getElementById("senha");
+    const nome = document.getElementById("nome");
+    const sobrenome = document.getElementById("sobrenome");
+    const funcao = document.getElementById("funcao");
+
+    matricula?.addEventListener("input", function () {
+        this.value = this.value.replace(/\D/g, "").slice(0, 12);
+        limparErroCampo("matricula");
+    });
+
+    senha?.addEventListener("input", function () {
+        this.value = this.value.replace(/\s/g, "").slice(0, 20);
+        limparErroCampo("senha");
+    });
+
+    nome?.addEventListener("input", function () {
+        this.value = this.value
+            .replace(/\s/g, "")
+            .replace(/[^a-zA-ZÀ-ÿ]/g, "")
+            .slice(0, 60);
+
+        limparErroCampo("nome");
+    });
+
+    sobrenome?.addEventListener("input", function () {
+        this.value = this.value
+            .replace(/\s/g, "")
+            .replace(/[^a-zA-ZÀ-ÿ]/g, "")
+            .slice(0, 60);
+
+        limparErroCampo("sobrenome");
+    });
+
+    funcao?.addEventListener("change", () => {
+        limparErroCampo("funcao");
+    });
+
+    document.getElementById("loginForm")?.addEventListener("submit", event => {
+        event.preventDefault();
+        login();
+    });
+
+    document.getElementById("registroForm")?.addEventListener("submit", event => {
+        event.preventDefault();
+        registrar();
+    });
+});

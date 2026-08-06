@@ -1,34 +1,78 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Veículos - Registro</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1">
+
+  <title>Gerenciamento de Veículos</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    rel="stylesheet">
+
+  
+  <link rel="stylesheet" href="css/tema.css">
+  <link rel="stylesheet" href="css/geral.css">
+  <link rel="stylesheet" href="css/listar.css">
+  
 </head>
+
 <body>
-  <h2>Gerenciamento de Veículos</h2>
 
-  <form id="veiculoForm">
-    <input type="hidden" id="veiculoId">
-    <label>Modelo:</label>
-    <input type="text" id="modelo"><br>
-    <label>Placa:</label>
-    <input type="text" id="placa"><br>
-    <label>Ano:</label>
-    <input type="number" id="ano"><br>
-    <button type="submit">Salvar</button>
-  </form>
+  <main
+    class="container d-flex align-items-center justify-content-center min-vh-100 py-4">
 
-  <h3>Lista de Veículos</h3>
-  <table border="1" id="veiculosTable">
-    <thead>
-      <tr>
-        <th>ID</th><th>Modelo</th><th>Placa</th><th>Ano</th><th>Ações</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <section
+      class="card w-100"
+      style="max-width: 680px;">
 
-  <a href="usuarios.html">Ir para Usuários</a>
-  <script src="js/veiculos.js"></script>
+      <div class="card-body p-4 p-md-5">
+
+        <header class="mb-4">
+
+          <h1 class="h4 mb-2">
+            Gerenciamento de veículos
+          </h1>
+
+          <p class="text-muted mb-0">
+            O cadastro, a edição e a exclusão dos veículos estão disponíveis
+            no dashboard do coordenador.
+          </p>
+
+        </header>
+
+        <div class="p-3 mb-4 border rounded bg-light">
+
+          <p class="small text-muted mb-0">
+            Utilize o dashboard para consultar a frota, cadastrar novos
+            veículos, editar os dados existentes e realizar exclusões.
+          </p>
+
+        </div>
+
+        <div class="d-grid d-sm-flex gap-2">
+
+          <a
+            href="dashboard_coordenador.html"
+            class="btn btn-primary">
+            Abrir dashboard do coordenador
+          </a>
+
+          <a
+            href="index.html"
+            class="btn btn-outline-secondary">
+            Voltar ao login
+          </a>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
 </body>
 </html>

@@ -3,7 +3,6 @@ package br.edu.ifpe.dsc.controlador;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,17 +14,29 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/veiculo")
 public class VeiculoControlador {
 
-    @Autowired
-    private VeiculoModel veiculoModel;
+    private final VeiculoModel veiculoModel;
+
+    public VeiculoControlador(
+            VeiculoModel veiculoModel) {
+
+        this.veiculoModel = veiculoModel;
+    }
 
     // POST - CADASTRAR
     @PostMapping("/cadastrar")
-    public ResponseEntity<?> cadastrar(@Valid @RequestBody Veiculo veiculo) {
+    public ResponseEntity<?> cadastrar(
+            @Valid @RequestBody Veiculo veiculo) {
+
         try {
-            Veiculo salvo = veiculoModel.salvar(veiculo);
+            Veiculo salvo =
+                    veiculoModel.salvar(veiculo);
+
             return ResponseEntity.ok(salvo);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (IllegalArgumentException erro) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(erro.getMessage());
         }
     }
 
@@ -35,39 +46,69 @@ public class VeiculoControlador {
         return veiculoModel.listarTodos();
     }
 
-    // GET - BUSCAR POR NUMERO
+    // GET - BUSCAR POR NÚMERO
     @GetMapping("/buscar/{numero}")
-    public ResponseEntity<Veiculo> buscarPorNumero(@PathVariable int numero) {
-        Optional<Veiculo> veiculo = veiculoModel.buscarPorNumero(numero);
-        return veiculo.map(ResponseEntity::ok)
-                      .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Veiculo> buscarPorNumero(
+            @PathVariable long numero) {
+
+        Optional<Veiculo> veiculo =
+                veiculoModel.buscarPorNumero(numero);
+
+        return veiculo
+                .map(ResponseEntity::ok)
+                .orElseGet(() ->
+                        ResponseEntity.notFound().build()
+                );
     }
 
-    // PUT - ATUALIZAR POR NUMERO
-    @PutMapping("/atualizar/{numero}")
-    public ResponseEntity<?> atualizar(@PathVariable int numero,
-                                       @Valid@RequestBody Veiculo dados) {
+    // PUT - ATUALIZAR PELO NÚMERO ORIGINAL
+    @PutMapping("/atualizar/{numeroOriginal}")
+    public ResponseEntity<?> atualizar(
+            @PathVariable long numeroOriginal,
+            @Valid @RequestBody Veiculo dados) {
+
         try {
-            Veiculo atualizado = veiculoModel.atualizar(numero, dados);
+            Veiculo atualizado =
+                    veiculoModel.atualizar(
+                            numeroOriginal,
+                            dados
+                    );
+
             if (atualizado == null) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity
+                        .notFound()
+                        .build();
             }
+
             return ResponseEntity.ok(atualizado);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+
+        } catch (IllegalArgumentException erro) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(erro.getMessage());
         }
     }
 
-    // DELETE - POR NUMERO
+    // DELETE - EXCLUIR PELO NÚMERO
     @DeleteMapping("/deletar/{numero}")
-    public ResponseEntity<Void> deletar(@PathVariable int numero) {
-        Optional<Veiculo> veiculo = veiculoModel.buscarPorNumero(numero);
+    public ResponseEntity<Void> deletar(
+            @PathVariable long numero) {
 
-        if (veiculo.isPresent()) {
-            veiculoModel.deletarVeiculo(veiculo.get());
-            return ResponseEntity.noContent().build();
+        Optional<Veiculo> veiculo =
+                veiculoModel.buscarPorNumero(numero);
+
+        if (veiculo.isEmpty()) {
+            return ResponseEntity
+                    .notFound()
+                    .build();
         }
 
-        return ResponseEntity.notFound().build();
+        veiculoModel.deletarVeiculo(
+                veiculo.get()
+        );
+
+        return ResponseEntity
+                .noContent()
+                .build();
     }
 }
